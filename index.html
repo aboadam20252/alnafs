@@ -617,6 +617,17 @@
               </div>
             </div>
 
+            <div class="prayer-item" id="badges-card-sidebar" data-aos="fade-up" style="border-color: #f43f5e; cursor: pointer;" onclick="openBadgesModal()">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #f43f5e; border:none;"><i class="fa-solid fa-medal"></i> إنجازاتي</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="badges-preview" style="text-align: center; padding: 0.5rem 0;">
+                <div style="display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;" id="badges-preview-icons"></div>
+                <div id="badges-preview-text" style="font-size: 0.8rem; color: var(--text-secondary);">0 من 0 إنجاز</div>
+              </div>
+            </div>
+
             <div class="prayer-item" id="daily-todo-card-sidebar" data-aos="fade-up" style="border-color: #6366f1;">
               <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
                 <span class="prayer-name" style="color: #6366f1; border:none;"><i class="fa-solid fa-list-check"></i> مهام اليوم</span>
@@ -773,6 +784,16 @@
               </div>
               <div id="stats-preview" style="text-align: center; padding: 0.5rem 0;">
                 <div style="font-size: 0.85rem; color: var(--text-secondary);">اضغط لعرض مقارنة أداءك</div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="weekly-report-card-sidebar" data-aos="fade-up" style="border-color: #8b5cf6; cursor: pointer;" onclick="openWeeklyReportModal()">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #8b5cf6; border:none;"><i class="fa-solid fa-file-lines"></i> تقريري الأسبوعي</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="weekly-report-preview" style="text-align: center; padding: 0.5rem 0;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">اضغط لعرض ملخص أدائك</div>
               </div>
             </div>
 
@@ -1458,6 +1479,36 @@
         <div id="stats-summary-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
         <div id="stats-comparison-bars"></div>
         <div id="stats-best-day" style="margin-top:15px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال الإنجازات والشارات -->
+  <div id="badges-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 520px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-medal" style="color: #f43f5e;"></i> إنجازاتي وشاراتي</h3>
+        <button class="close-btn" onclick="closeBadgesModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="badges-earned-count" style="text-align:center;margin-bottom:15px;padding:10px;background:rgba(244,63,94,0.08);border-radius:12px;"></div>
+        <div id="badges-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال التقرير الأسبوعي -->
+  <div id="weekly-report-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-lines" style="color: #8b5cf6;"></i> التقرير الأسبوعي</h3>
+        <button class="close-btn" onclick="closeWeeklyReportModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="weekly-report-content"></div>
+        <button id="weekly-report-copy-btn" onclick="copyWeeklyReport()" style="width:100%;margin-top:15px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#8b5cf6,#a855f7);color:white;font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <i class="fa-solid fa-copy"></i> نسخ التقرير
+        </button>
       </div>
     </div>
   </div>

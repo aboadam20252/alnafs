@@ -4438,3 +4438,185 @@ html[data-theme="dark"] .insight-box:hover {
     font-size: 0.9rem;
     flex-shrink: 0;
 }
+
+/* === Badges / Achievements === */
+.badge-card {
+    padding: 14px 10px;
+    border-radius: 14px;
+    text-align: center;
+    transition: all 0.3s;
+    border: 1px solid rgba(244,63,94,0.1);
+    background: rgba(244,63,94,0.04);
+}
+.badge-card.earned {
+    background: rgba(244,63,94,0.1);
+    border-color: rgba(244,63,94,0.3);
+    box-shadow: 0 0 12px rgba(244,63,94,0.1);
+}
+.badge-card.locked {
+    opacity: 0.45;
+    filter: grayscale(0.6);
+}
+.badge-icon {
+    font-size: 2rem;
+    margin-bottom: 6px;
+    display: block;
+    transition: transform 0.3s;
+}
+.badge-card.earned .badge-icon {
+    transform: scale(1.1);
+}
+.badge-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+.badge-desc {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+.badge-card.earned .badge-name {
+    color: #f43f5e;
+}
+.badge-earned-date {
+    font-size: 0.65rem;
+    color: #10b981;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* === Weekly Report === */
+.weekly-report-section {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(139,92,246,0.06);
+    border-radius: 12px;
+    border-right: 3px solid #8b5cf6;
+}
+.weekly-report-section h4 {
+    font-size: 0.85rem;
+    color: #8b5cf6;
+    margin-bottom: 8px;
+}
+.weekly-report-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(139,92,246,0.08);
+}
+.weekly-report-row:last-child {
+    border-bottom: none;
+}
+.weekly-report-row .wr-label {
+    color: var(--text-secondary);
+}
+.weekly-report-row .wr-value {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.weekly-day-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-size: 0.8rem;
+}
+.weekly-day-bar .day-name {
+    width: 40px;
+    color: var(--text-secondary);
+    text-align: left;
+}
+.weekly-day-bar .day-track {
+    flex: 1;
+    height: 10px;
+    background: rgba(139,92,246,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.weekly-day-bar .day-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6, #a855f7);
+    border-radius: 5px;
+    transition: width 0.4s;
+}
+.weekly-day-bar .day-score {
+    width: 30px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #8b5cf6;
+}
+
+/* === Night Comfort Mode === */
+html.night-comfort-mode {
+    --bg-primary: #0d0d1a;
+    --bg-secondary: rgba(18, 18, 35, 0.7);
+    --glass-border: rgba(255, 200, 120, 0.08);
+    --glass-shine: rgba(255, 200, 120, 0.1);
+    --text-primary: #e8d5b5;
+    --text-secondary: #8a7d6b;
+    --accent-color: #d4a054;
+    --accent-hover: #c4903c;
+    --accent-glass: rgba(212, 160, 84, 0.12);
+    --prayer-bg: rgba(18, 18, 35, 0.4);
+    --prayer-hover: rgba(30, 25, 45, 0.8);
+    --btn-bg-default: rgba(40, 35, 50, 0.7);
+    --btn-text-default: #e8d5b5;
+    --btn-border-default: rgba(60, 50, 70, 0.5);
+}
+html.night-comfort-mode body {
+    filter: saturate(0.85) brightness(0.88);
+}
+html.night-comfort-mode .prayer-item {
+    border-color: rgba(212, 160, 84, 0.15) !important;
+}
+html.night-comfort-mode .task-btn:not(.active):not(.completed) {
+    background: rgba(212, 160, 84, 0.06);
+    color: #d4a054;
+    border-color: rgba(212, 160, 84, 0.2);
+}
+
+.night-mode-banner {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(212,160,84,0.15), rgba(30,25,45,0.95));
+    border: 1px solid rgba(212,160,84,0.2);
+    border-radius: 16px;
+    padding: 14px 20px;
+    text-align: center;
+    z-index: 500;
+    max-width: 340px;
+    width: 90%;
+    animation: nightFadeIn 0.6s;
+    backdrop-filter: blur(12px);
+}
+.night-mode-banner .night-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+.night-mode-banner .night-msg {
+    font-size: 0.9rem;
+    color: #d4a054;
+    font-weight: 600;
+    line-height: 1.5;
+}
+.night-mode-banner .night-dismiss {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+@keyframes nightFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

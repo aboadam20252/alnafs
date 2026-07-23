@@ -7131,6 +7131,263 @@ function renderSmartReminders() {
 }
 
 // =========================================
+// نظام الإنجازات والشارات
+// =========================================
+
+const BADGES_DEF = [
+    { id: 'first_day', icon: '🌟', name: 'أول خطوة', desc: 'أول يوم في التطبيق', check: () => true },
+    { id: 'perfect_day', icon: '💯', name: 'يوم مثالي', desc: 'حصلت على 100% في يوم واحد', check: () => { for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`mohasba_data_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.stats&&v.stats.totalScore>=100)return true;}catch{}}return false; }},
+    { id: 'streak_3', icon: '🔥', name: '3 أيام', desc: 'سلسلة 3 أيام متتالية', check: () => calculateStreak() >= 3 || calculateBestStreak() >= 3 },
+    { id: 'streak_7', icon: '⭐', name: 'أسبوع متكامل', desc: 'سلسلة 7 أيام متتالية', check: () => calculateStreak() >= 7 || calculateBestStreak() >= 7 },
+    { id: 'streak_30', icon: '🏆', name: 'شهر كامل', desc: 'سلسلة 30 يوم متتالي', check: () => calculateStreak() >= 30 || calculateBestStreak() >= 30 },
+    { id: 'streak_100', icon: '👑', name: 'مئة يوم', desc: 'سلسلة 100 يوم', check: () => calculateBestStreak() >= 100 },
+    { id: 'streak_365', icon: '💎', name: 'سنة كاملة', desc: 'سلسلة 365 يوم', check: () => calculateBestStreak() >= 365 },
+    { id: 'fast_mon_thu', icon: '🌙', name: 'صائم الإثنين والخميس', desc: 'صمت الإثنين والخميس مرة واحدة', check: () => { const fd=loadFastingDataRaw();let mon=false,thu=false;Object.keys(fd).forEach(k=>{if(!fd[k])return;const p=k.split('-');const d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));const day=d.getDay();if(day===1)mon=true;if(day===4)thu=true;});return mon&&thu; }},
+    { id: 'fast_white', icon: '🕌', name: 'أيام بيض', desc: 'صمت الأيام البيض (13-14-15 هجري)', check: () => { const fd=loadFastingDataRaw();return fd['white_day_13'] && fd['white_day_14'] && fd['white_day_15']; }},
+    { id: 'quran_30', icon: '📖', name: 'قارئ نشط', desc: 'قرأت 30 صفحة قرآن في يوم واحد', check: () => { for(let i=0;i<30;i++){const d=new Date();d.setDate(d.getDate()-i);const ib=getIbadatData(d);if(ib&&ib.dynamic){const q=ib.dynamic.find(x=>x.name&&(x.name.includes('قرآن')||x.name.includes('quran')));if(q&&q.done)return true;}}return false; }},
+    { id: 'adhkar_7', icon: '🤲', name: 'حافظ الأذكار', desc: 'أكملت أذكار الصباح 7 أيام', check: () => { let count=0;for(let i=0;i<60;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`mohasba_data_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.adhkar&&v.adhkar.morning&&v.adhkar.morning==='100%'){count++;if(count>=7)return true;}}catch{}count=0;}return false; }},
+    { id: 'salawat_100', icon: '📿', name: 'صلاة على النبي', desc: 'صلّيت على النبي ﷺ 100 مرة', check: () => { try{const v=JSON.parse(localStorage.getItem('salawat_counter'));return v&&v.total>=100;}catch{return false;} }},
+    { id: 'total_1000', icon: '🎖️', name: 'ألف نقطة', desc: 'مجموع نقاطك 1000 نقطة', check: () => { let total=0;for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`mohasba_data_${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.stats)total+=v.stats.totalScore||0;}catch{}if(total>=1000)return true;}return false; }},
+    { id: 'rank_silver', icon: '🥈', name: 'رتبة فضية', desc: 'وصلت للرتبة الفضية (500 نقطة)', check: () => { try{const p=JSON.parse(localStorage.getItem('mohasba_user_profile'));return p&&p.lifetimePoints>=500;}catch{return false;} }},
+    { id: 'rank_gold', icon: '🥇', name: 'رتبة ذهبية', desc: 'وصلت للرتبة الذهبية (2000 نقطة)', check: () => { try{const p=JSON.parse(localStorage.getItem('mohasba_user_profile'));return p&&p.lifetimePoints>=2000;}catch{return false;} }},
+];
+
+function loadFastingDataRaw() {
+    try { return JSON.parse(localStorage.getItem('mohasba_fasting_data')) || {}; } catch { return {}; }
+}
+
+function getIbadatData(date) {
+    const k = `ibadat_data_${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+    try { return JSON.parse(localStorage.getItem(k)); } catch { return null; }
+}
+
+function loadEarnedBadges() {
+    try { return JSON.parse(localStorage.getItem('mohasba_earned_badges')) || {}; } catch { return {}; }
+}
+
+function saveEarnedBadges(badges) {
+    localStorage.setItem('mohasba_earned_badges', JSON.stringify(badges));
+}
+
+function checkAndAwardBadges() {
+    const earned = loadEarnedBadges();
+    let newAward = false;
+    BADGES_DEF.forEach(b => {
+        if (!earned[b.id] && b.check()) {
+            earned[b.id] = { date: new Date().toLocaleDateString('ar-EG') };
+            newAward = true;
+        }
+    });
+    if (newAward) saveEarnedBadges(earned);
+    return earned;
+}
+
+function renderBadgesModal() {
+    const grid = document.getElementById('badges-grid');
+    const countEl = document.getElementById('badges-earned-count');
+    if (!grid) return;
+
+    const earned = checkAndAwardBadges();
+    const total = BADGES_DEF.length;
+    const earnedCount = BADGES_DEF.filter(b => earned[b.id]).length;
+
+    countEl.innerHTML = `<span style="font-size:1.4rem;font-weight:800;color:#f43f5e;">${earnedCount}</span> <span style="color:var(--text-secondary);">/ ${total} إنجاز مكتمل</span>`;
+
+    grid.innerHTML = BADGES_DEF.map(b => {
+        const isEarned = !!earned[b.id];
+        return `<div class="badge-card ${isEarned ? 'earned' : 'locked'}">
+            <span class="badge-icon">${b.icon}</span>
+            <div class="badge-name">${b.name}</div>
+            <div class="badge-desc">${b.desc}</div>
+            ${isEarned ? `<div class="badge-earned-date">✓ ${earned[b.id].date}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function renderBadgesPreview() {
+    const icons = document.getElementById('badges-preview-icons');
+    const text = document.getElementById('badges-preview-text');
+    if (!icons) return;
+
+    const earned = checkAndAwardBadges();
+    const earnedBadges = BADGES_DEF.filter(b => earned[b.id]);
+    const total = BADGES_DEF.length;
+
+    icons.innerHTML = earnedBadges.slice(0, 6).map(b =>
+        `<span style="font-size:1.2rem;" title="${b.name}">${b.icon}</span>`
+    ).join('') || '<span style="font-size:0.8rem;color:var(--text-secondary);">لم تحصل على أي شارة بعد</span>';
+
+    if (text) text.textContent = `${earnedBadges.length} من ${total} إنجاز`;
+}
+
+function openBadgesModal() {
+    const modal = document.getElementById('badges-modal');
+    if (modal) { modal.classList.remove('hidden'); renderBadgesModal(); }
+}
+
+function closeBadgesModal() {
+    const modal = document.getElementById('badges-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+// =========================================
+// التقرير الأسبوعي
+// =========================================
+
+let weeklyReportText = '';
+
+function getWeeklyReportData() {
+    const now = window.getZeftaNow ? getZeftaNow() : new Date();
+    const dayOfWeek = now.getDay();
+    const days = [];
+    const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - dayOfWeek + i);
+        const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        let score = 0, fasting = false, adhkar = 0;
+        try {
+            const data = JSON.parse(localStorage.getItem('mohasba_data_' + key));
+            if (data && data.stats) score = data.stats.totalScore || 0;
+            if (data && data.adhkar) adhkar = Object.values(data.adhkar).filter(v => v === '100%').length;
+        } catch {}
+        const fastingData = loadFastingDataRaw();
+        fasting = !!fastingData[key];
+        days.push({ name: dayNames[d.getDay()], score, fasting, adhkar, date: d, isToday: d.toDateString() === now.toDateString() });
+    }
+    return days;
+}
+
+function renderWeeklyReportModal() {
+    const container = document.getElementById('weekly-report-content');
+    if (!container) return;
+
+    const days = getWeeklyReportData();
+    const totalScore = days.reduce((s, d) => s + d.score, 0);
+    const avgScore = (totalScore / 7).toFixed(1);
+    const bestDay = days.reduce((b, d) => d.score > b.score ? d : b, days[0]);
+    const fastingCount = days.filter(d => d.fasting).length;
+    const totalAdhkar = days.reduce((s, d) => s + d.adhkar, 0);
+    const activeDays = days.filter(d => d.score > 0).length;
+
+    const earned = checkAndAwardBadges();
+    const newBadges = BADGES_DEF.filter(b => earned[b.id]).length;
+
+    const maxScore = Math.max(...days.map(d => d.score), 1);
+
+    let html = '';
+
+    html += `<div class="weekly-report-section">
+        <h4><i class="fa-solid fa-chart-line"></i> ملخص الأسبوع</h4>
+        <div class="weekly-report-row"><span class="wr-label">مجموع النقاط</span><span class="wr-value">${totalScore}</span></div>
+        <div class="weekly-report-row"><span class="wr-label">المتوسط اليومي</span><span class="wr-value">${avgScore}</span></div>
+        <div class="weekly-report-row"><span class="wr-label">أيام النشاط</span><span class="wr-value">${activeDays}/7</span></div>
+        <div class="weekly-report-row"><span class="wr-label">أفضل يوم</span><span class="wr-value">${bestDay.name} (${bestDay.score} نقطة)</span></div>
+        <div class="weekly-report-row"><span class="wr-label">أيام الصيام</span><span class="wr-value">${fastingCount}/7</span></div>
+        <div class="weekly-report-row"><span class="wr-label">إجمالي الأذكار</span><span class="wr-value">${totalAdhkar} مرة</span></div>
+        <div class="weekly-report-row"><span class="wr-label">الشارات المكتسبة</span><span class="wr-value">${newBadges} شارة</span></div>
+    </div>`;
+
+    html += `<div class="weekly-report-section">
+        <h4><i class="fa-solid fa-calendar-week"></i> تفاصيل الأيام</h4>
+        ${days.map(d => `<div class="weekly-day-bar">
+            <span class="day-name">${d.isToday ? '← اليوم' : d.name}</span>
+            <div class="day-track"><div class="day-fill" style="width:${(d.score / maxScore) * 100}%"></div></div>
+            <span class="day-score">${d.score}</span>
+        </div>`).join('')}
+    </div>`;
+
+    container.innerHTML = html;
+
+    weeklyReportText = `📊 تقريري الأسبوعي - محاسبة النفس\n━━━━━━━━━━━━━━━━━━\n`;
+    weeklyReportText += `📈 مجموع النقاط: ${totalScore}\n`;
+    weeklyReportText += `📊 المتوسط اليومي: ${avgScore}\n`;
+    weeklyReportText += `🔥 أيام النشاط: ${activeDays}/7\n`;
+    weeklyReportText += `🏆 أفضل يوم: ${bestDay.name} (${bestDay.score} نقطة)\n`;
+    weeklyReportText += `🌙 أيام الصيام: ${fastingCount}\n`;
+    weeklyReportText += `🤲 الأذكار: ${totalAdhkar} مرة\n`;
+    weeklyReportText += `⭐ الشارات: ${newBadges}\n`;
+    weeklyReportText += `━━━━━━━━━━━━━━━━━━\n`;
+    days.forEach(d => {
+        weeklyReportText += `${d.isToday ? '→' : ' '} ${d.name}: ${d.score} نقطة${d.fasting ? ' 🌙' : ''}\n`;
+    });
+    weeklyReportText += `━━━━━━━━━━━━━━━━━━\n`;
+    weeklyReportText += `تطبيق محاسبة النفس 🤲`;
+}
+
+function copyWeeklyReport() {
+    navigator.clipboard.writeText(weeklyReportText).then(() => {
+        const btn = document.getElementById('weekly-report-copy-btn');
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ!'; setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ التقرير'; }, 2000); }
+    }).catch(() => {});
+}
+
+function openWeeklyReportModal() {
+    const modal = document.getElementById('weekly-report-modal');
+    if (modal) { modal.classList.remove('hidden'); renderWeeklyReportModal(); }
+}
+
+function closeWeeklyReportModal() {
+    const modal = document.getElementById('weekly-report-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+// =========================================
+// وضع الليل المريح
+// =========================================
+
+const NIGHT_MESSAGES = [
+    'لا تنسَ أذكار النوم واذكر الله',
+    'سبحان الله وبحمده... عدد خلقه ورضا نفسه',
+    'توكّل على الله فهو خير الوكيل',
+    'لا إله إلا الله وحده لا شريك له',
+    'اللهم اجعل نومتك نعيمًا و-Semit عليك سلامًا',
+    'من قالها مائة مرة كانت له نورًا يوم القيامة',
+    'أسألك العافية في الدنيا والآخرة',
+    'اللهم قني عذابك يوم تبعث عبادك',
+];
+
+function initNightMode() {
+    const now = window.getZeftaNow ? getZeftaNow() : new Date();
+    const hour = now.getHours();
+    const isNight = hour >= 20 || hour < 5;
+
+    if (isNight) {
+        document.documentElement.classList.add('night-comfort-mode');
+        showNightBanner();
+    } else {
+        document.documentElement.classList.remove('night-comfort-mode');
+    }
+}
+
+function showNightBanner() {
+    if (localStorage.getItem('mohasba_night_banner_dismissed_today')) return;
+    const now = window.getZeftaNow ? getZeftaNow() : new Date();
+    const todayKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+    if (localStorage.getItem('mohasba_night_banner_' + todayKey)) return;
+
+    const msg = NIGHT_MESSAGES[Math.floor(Math.random() * NIGHT_MESSAGES.length)];
+    const existing = document.querySelector('.night-mode-banner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.className = 'night-mode-banner';
+    banner.innerHTML = `
+        <div class="night-icon">🌙</div>
+        <div class="night-msg">${msg}</div>
+        <button class="night-dismiss" onclick="dismissNightBanner()">شكراً، تذكّرني غداً</button>
+    `;
+    document.body.appendChild(banner);
+    localStorage.setItem('mohasba_night_banner_' + todayKey, '1');
+}
+
+function dismissNightBanner() {
+    const banner = document.querySelector('.night-mode-banner');
+    if (banner) banner.style.display = 'none';
+}
+
+// =========================================
 // تحديث تهيئة DOMContentLoaded
 // =========================================
 
@@ -7149,6 +7406,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDailyTodo();
     renderSmartReminders();
     setInterval(renderSmartReminders, 30 * 60 * 1000);
+    renderBadgesPreview();
+    initNightMode();
 
     // إظهار مودال الإعدادات أول مرة إذا ما فيش بروفايل محفوظ
     if (!userProfile.name) {
