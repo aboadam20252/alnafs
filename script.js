@@ -335,7 +335,7 @@ function kuwaitiCalendar(date) {
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
 
-    themeToggle.addEventListener('click', () => {
+    if (themeToggle) themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', newTheme);
@@ -344,6 +344,7 @@ function kuwaitiCalendar(date) {
     });
 
     function updateThemeIcon(theme) {
+        if (!themeIcon) return;
         if (theme === 'dark') {
             themeIcon.classList.remove('fa-moon');
             themeIcon.classList.add('fa-sun');
@@ -439,6 +440,8 @@ function updateHeaderOnScroll() {
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    window._db = db;
+    window._auth = auth;
     const provider = new firebase.auth.GoogleAuthProvider();
 
     // --- 2. دالة تسجيل الدخول (معدلة للفحص) ---
@@ -1412,24 +1415,26 @@ function saveExtras() {
         // 1. تحميل من LocalStorage أولاً للسرعة
         const saved = localStorage.getItem('mohasba_global_habits');
         if (saved) {
-            globalHabits = JSON.parse(saved);
+            try { globalHabits = JSON.parse(saved); } catch(e) { globalHabits = {}; }
             renderGlobalHabits(); // رسم العبادات على الشاشة
         }
 
         // 2. تحميل من Firebase للتحديث
-        const user = auth.currentUser;
-        if (user) {
-            db.collection('users').doc(user.uid).collection('settings').doc('custom_habits').get()
-                .then(doc => {
-                    if (doc.exists) {
-                        globalHabits = doc.data();
-                        localStorage.setItem('mohasba_global_habits', JSON.stringify(globalHabits));
-                        renderGlobalHabits();
-                        // بعد رسم العبادات، يجب إعادة تحميل حالة اليوم (هل تم إنجازها أم لا؟)
-                        loadData(); 
-                    }
+        try {
+            const user = auth.currentUser;
+            if (user) {
+                db.collection('users').doc(user.uid).collection('settings').doc('custom_habits').get()
+                    .then(doc => {
+                        if (doc.exists) {
+                            globalHabits = doc.data();
+                            localStorage.setItem('mohasba_global_habits', JSON.stringify(globalHabits));
+                            renderGlobalHabits();
+                            // بعد رسم العبادات، يجب إعادة تحميل حالة اليوم (هل تم إنجازها أم لا؟)
+                            loadData(); 
+                        }
                 });
-        }
+            }
+        } catch(e) {}
     }
 
     // دالة رسم العبادات الثابتة على الشاشة
@@ -1565,43 +1570,42 @@ function saveExtras() {
 
     // 2. تطبيق البيانات المحفوظة
     if (saved) {
-        const data = JSON.parse(saved);
-        
-        // استعادة الأزرار
-        if (data.buttons) {
-            Object.keys(data.buttons).forEach(index => {
-                // نستخدم التحديد الأدق للأزرار باستثناء النوافل الإضافية
-                const btns = document.querySelectorAll('.task-btn:not(.extra-worship-box .task-btn)');
-                if (btns[index]) {
-                    btns[index].classList.add(btns[index].classList.contains('action-btn') ? 'completed' : 'active');
+        let data;
+        try { data = JSON.parse(saved); } catch(e) { data = null; }
+        if (data) {
+            // استعادة الأزرار
+            if (data.buttons) {
+                Object.keys(data.buttons).forEach(index => {
+                    const btns = document.querySelectorAll('.task-btn:not(.extra-worship-box .task-btn)');
+                    if (btns[index]) {
+                        btns[index].classList.add(btns[index].classList.contains('action-btn') ? 'completed' : 'active');
+                    }
+                });
+            }
+
+            // استعادة الأذكار
+            if (data.adhkar) {
+                Object.keys(data.adhkar).forEach(type => {
+                    const progress = document.getElementById(`progress-${type}`);
+                    if (progress) progress.style.width = data.adhkar[type];
+                    
+                    const btn = document.querySelector(`button[onclick="openAdhkar('${type}')"]`);
+                    if (btn && data.adhkar[type] === '100%') btn.classList.add('completed');
+                });
+            }
+            
+            // استعادة البونص
+            if (data.bonus) {
+                const bonusBtn = document.getElementById('bonus-action-btn');
+                if(bonusBtn && bonusBtn.getAttribute('data-bonus-id') === data.bonus.id && data.bonus.done) {
+                    bonusBtn.classList.add('active');
+                    bonusBtn.innerHTML = `<i class="fa-solid fa-check"></i> تمت (${data.bonus.points}+)`;
                 }
-            });
-        }
+            }
 
-        // استعادة الأذكار
-        if (data.adhkar) {
-            Object.keys(data.adhkar).forEach(type => {
-                const progress = document.getElementById(`progress-${type}`);
-                if (progress) progress.style.width = data.adhkar[type];
-                
-                const btn = document.querySelector(`button[onclick="openAdhkar('${type}')"]`);
-                if (btn && data.adhkar[type] === '100%') btn.classList.add('completed');
-            });
-        }
-        
-        // استعادة البونص
-        if (data.bonus) {
-             const bonusBtn = document.getElementById('bonus-action-btn');
-             if(bonusBtn && bonusBtn.getAttribute('data-bonus-id') === data.bonus.id && data.bonus.done) {
-                 bonusBtn.classList.add('active');
-                 bonusBtn.innerHTML = `<i class="fa-solid fa-check"></i> تمت (${data.bonus.points}+)`;
-             }
-        }
-
-        // --- التصحيح الذاتي (هام جداً) ---
-        // إذا كانت البيانات موجودة لكن لا تحتوي على stats، أو إذا كنا نريد تحديث العرض فوراً
-        if (!data.stats) {
-            needsMigration = true;
+            if (!data.stats) {
+                needsMigration = true;
+            }
         }
     }
 
@@ -1632,7 +1636,9 @@ function saveExtras() {
 
         // 2. تطبيق البيانات
         if (saved) {
-            const data = JSON.parse(saved);
+            let data;
+            try { data = JSON.parse(saved); } catch(e) { data = null; }
+            if (data) {
             
             // الثابتة
             if (data.static) {
@@ -1654,7 +1660,8 @@ function saveExtras() {
                     });
                 });
             }
-        }
+            } // end if (data)
+        } // end if (saved)
         updateGlobalScore();
     }
 
@@ -1670,17 +1677,18 @@ function saveExtras() {
 
         // 2. تطبيق البيانات
         if (saved) {
-            const extrasData = JSON.parse(saved);
-            extrasData.forEach(item => {
-                document.querySelectorAll('.extra-worship-box').forEach(box => {
-                    const btn = box.querySelector('.task-btn');
-                    // نطابق بالاسم والحالة
-                    if (btn.textContent === item.name && item.done) {
-                        btn.classList.add('active');
-                        box.classList.add('done');
-                    }
+            try {
+                const extrasData = JSON.parse(saved);
+                extrasData.forEach(item => {
+                    document.querySelectorAll('.extra-worship-box').forEach(box => {
+                        const btn = box.querySelector('.task-btn');
+                        if (btn.textContent === item.name && item.done) {
+                            btn.classList.add('active');
+                            box.classList.add('done');
+                        }
+                    });
                 });
-            });
+            } catch(e) {}
         }
         updateGlobalScore();
     }
@@ -2255,7 +2263,7 @@ function saveExtras() {
     // تحميل الإعدادات عند فتح الموقع
     const savedNotifSettings = localStorage.getItem('notification_settings');
     if (savedNotifSettings) {
-        notificationSettings = JSON.parse(savedNotifSettings);
+        try { notificationSettings = JSON.parse(savedNotifSettings); } catch(e) {}
         // تحديث الحقول في المودال
         const morningTimeEl = document.getElementById('setup-morning-time');
         const eveningTimeEl = document.getElementById('setup-evening-time');
@@ -2270,7 +2278,7 @@ function saveExtras() {
     //    الصلاة والمناسبات هنا فلسه بيعتمد على إن الصفحة تكون مفتوحة)
     setInterval(() => {
         const nativeApp = window.isNativeApp && window.isNativeApp();
-        if (!nativeApp && Notification.permission !== "granted") return;
+        if (!nativeApp && (typeof Notification === 'undefined' || Notification.permission !== "granted")) return;
         if (nativeApp && !notificationSettings.enabled) return;
 
         const now = getZeftaNow();
@@ -2302,8 +2310,8 @@ function saveExtras() {
         // ولو متصفح عادي هيستخدم Notification زي ما كان
         if (window.sendLocalNotification) {
             window.sendLocalNotification(title, body);
-        } else {
-            new Notification(title, { body: body, icon: 'path/to/icon.png', dir: 'rtl' });
+        } else if (typeof Notification !== 'undefined') {
+            new Notification(title, { body: body, icon: 'logo.png', dir: 'rtl' });
         }
     }
 
@@ -3373,12 +3381,13 @@ window.switchTab = function(tabName) {
     // 1. Update Buttons
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     // نحتاج لتحديد الزر الذي تم ضغطه (يمكن تمريره أو البحث عنه)
-    const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabName));
+    const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabName));
     if(clickedBtn) clickedBtn.classList.add('active');
 
     // 2. Show Content
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.getElementById(`tab-${tabName}`).classList.add('active');
+    const tabEl = document.getElementById(`tab-${tabName}`);
+    if (tabEl) tabEl.classList.add('active');
 
     // 3. Refresh data if needed (خاصة الجداول)
     if(tabName === 'weekly' || tabName === 'monthly' || tabName === 'daily') {
@@ -4222,8 +4231,10 @@ window.sendLocalNotification = function(title, body) {
 
 async function loadNiyyatSection() {
     try {
+        const fdb = window._db;
+        if (!fdb) return;
         // بنطلب البيانات من الوثيقة اللي هنكريتها في فايربيس
-        const docRef = db.collection("app_settings").doc("niyyat_section");
+        const docRef = fdb.collection("app_settings").doc("niyyat_section");
         const doc = await docRef.get();
 
         const niyyatContainer = document.getElementById('niyyat-section-container');
@@ -4632,7 +4643,7 @@ function toggleExtraWorship(el) {
 
     // تحديث النقاط
     if (typeof updateGlobalScore === 'function') updateGlobalScore();
-    if (typeof saveData === 'function') saveData();
+    if (typeof window.saveData === 'function') window.saveData();
 }
 
 // تحميل العبادات الإضافية عند بدء الصفحة
@@ -6646,7 +6657,7 @@ const BADGES_DEF = [
     { id: 'quran_30', icon: '📖', name: 'قارئ نشط', desc: 'قرأت 30 صفحة قرآن في يوم واحد', check: () => { for(let i=0;i<30;i++){const d=new Date();d.setDate(d.getDate()-i);const ib=getIbadatData(d);if(ib&&ib.dynamic){const q=ib.dynamic.find(x=>x.name&&(x.name.includes('قرآن')||x.name.includes('quran')));if(q&&q.done)return true;}}return false; }},
     { id: 'adhkar_7', icon: '🤲', name: 'حافظ الأذكار', desc: 'أكملت أذكار الصباح 7 أيام', check: () => { let count=0;for(let i=0;i<60;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`mohasba_data_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.adhkar&&v.adhkar.morning&&v.adhkar.morning==='100%'){count++;if(count>=7)return true;}}catch{}count=0;}return false; }},
     { id: 'salawat_100', icon: '📿', name: 'صلاة على النبي', desc: 'صلّيت على النبي ﷺ 100 مرة', check: () => { try{const v=JSON.parse(localStorage.getItem('salawat_counter'));return v&&v.total>=100;}catch{return false;} }},
-    { id: 'total_1000', icon: '🎖️', name: 'ألف نقطة', desc: 'مجموع نقاطك 1000 نقطة', check: () => { let total=0;for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`mohasba_data_${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.stats)total+=v.stats.totalScore||0;}catch{}if(total>=1000)return true;}return false; }},
+    { id: 'total_1000', icon: '🎖️', name: 'ألف نقطة', desc: 'مجموع نقاطك 1000 نقطة', check: () => { let total=0;for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`mohasba_data_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.stats)total+=v.stats.totalScore||0;}catch{}if(total>=1000)return true;}return false; }},
     { id: 'rank_silver', icon: '🥈', name: 'رتبة فضية', desc: 'وصلت للرتبة الفضية (500 نقطة)', check: () => { try{const p=JSON.parse(localStorage.getItem('mohasba_user_profile'));return p&&p.lifetimePoints>=500;}catch{return false;} }},
     { id: 'rank_gold', icon: '🥇', name: 'رتبة ذهبية', desc: 'وصلت للرتبة الذهبية (2000 نقطة)', check: () => { try{const p=JSON.parse(localStorage.getItem('mohasba_user_profile'));return p&&p.lifetimePoints>=2000;}catch{return false;} }},
 ];
@@ -6884,4 +6895,6 @@ function showNightBanner() {
 function dismissNightBanner() {
     const banner = document.querySelector('.night-mode-banner');
     if (banner) banner.style.display = 'none';
+    const todayKey = getZeftaNow().toLocaleDateString('en-CA');
+    localStorage.setItem('mohasba_night_banner_dismissed_today', todayKey);
 }
