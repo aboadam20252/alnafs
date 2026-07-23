@@ -888,28 +888,40 @@ function initPrayerTimes(lat, long) {
     // نستخدم التاريخ الحالي أو المختار من التقويم لضمان التحديث
     const date = currentDate || getZeftaNow(); 
     const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+    const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    function applyPrayerData(data) {
+        prayerTimesData = data.data ? data.data.timings : data.timings;
+        window._prayerTimesData = prayerTimesData;
+        startCountdown();
+
+        if (data.data && data.data.date) {
+            const hijri = data.data.date.hijri;
+            const gregorian = data.data.date.gregorian;
+            handleSunnahSystem(hijri, gregorian);
+        }
+    }
+
+    function tryBackupSource() {
+        const city = 'Tanta';
+        const country = 'Egypt';
+        fetch(`https://pray.ahmedelywa.com/api/prayer-times.json?address=${city},${country}&method=5`)
+            .then(r => r.json())
+            .then(data => {
+                applyPrayerData(data);
+            })
+            .catch(err => console.error("Backup prayer times also failed:", err));
+    }
 
     fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${long}&method=5`)
         .then(response => response.json())
         .then(data => {
-            // 1. الكود القديم (حساب المواقيت والعد التنازلي) - لم نلمسه
-            prayerTimesData = data.data.timings;
-            window._prayerTimesData = data.data.timings;
-            startCountdown();
-
-            // ---------------------------------------------------
-            // 2. الإضافة الجديدة (استخراج التاريخ وتشغيل البونص)
-            // ---------------------------------------------------
-            if (data.data.date) {
-                const hijri = data.data.date.hijri;      // التاريخ الهجري
-                const gregorian = data.data.date.gregorian; // التاريخ الميلادي (لأيام الأسبوع)
-                
-                // استدعاء دالة إدارة البونص والتنبيهات
-                handleSunnahSystem(hijri, gregorian);
-            }
-            // ---------------------------------------------------
+            applyPrayerData(data);
         })
-        .catch(err => console.error("Error fetching prayer times:", err));
+        .catch(err => {
+            console.warn("Aladhan API failed, trying backup...", err);
+            tryBackupSource();
+        });
 }
 
     function startCountdown() {
