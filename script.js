@@ -903,9 +903,7 @@ function initPrayerTimes(lat, long) {
     }
 
     function tryBackupSource() {
-        const city = 'Tanta';
-        const country = 'Egypt';
-        fetch(`https://pray.ahmedelywa.com/api/prayer-times.json?address=${city},${country}&method=5`)
+        fetch(`https://pray.ahmedelywa.com/api/prayer-times.json?lat=30.7833666&lng=30.9982536&method=5`)
             .then(r => r.json())
             .then(data => {
                 applyPrayerData(data);
