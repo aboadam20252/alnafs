@@ -264,7 +264,7 @@
                               <i class="fa-solid fa-check"></i> حفظ الموقع
                           </button>
                           <button type="button" id="set-zefta-btn" class="task-btn toggle-btn" style="width:100%; display:flex; gap:8px; justify-content:center; align-items:center; font-size:0.85rem; border-color:#f59e0b; color:#f59e0b;">
-                              <i class="fa-solid fa-map-marker-alt"></i> زفتى الغربية مصر (الإعداد السريع)
+                              <i class="fa-solid fa-map-marker-alt"></i> طنطا الغربية مصر (الإعداد السريع)
                           </button>
                       </div>
                       <p id="location-status" style="font-size: 0.8rem; margin-top: 5px; color: var(--accent-color);"></p>
@@ -357,6 +357,20 @@
 
         <div id="main-layout-wrapper" class="main-layout-wrapper">
           
+          <div id="next-prayer-banner" class="next-prayer-banner">
+            <div class="npb-left">
+              <div class="npb-icon">🕌</div>
+              <div class="npb-info">
+                <div class="npb-label">الصلاة القادمة</div>
+                <div class="npb-name" id="npb-prayer-name">--</div>
+              </div>
+            </div>
+            <div class="npb-right">
+              <div class="npb-countdown" id="npb-countdown">--:--:--</div>
+              <div class="npb-time" id="npb-prayer-time">--:--</div>
+            </div>
+          </div>
+
           <div id="app-main-column" class="main-column">
             <div class="prayers-container" id="prayers-container-wrapper">
 

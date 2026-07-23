@@ -1,4 +1,4 @@
-// توقيت زفتى الغربية مصر - يدعم التوقيت الصيفي (+3) والشتوي (+2)
+// توقيت طنطا الغربية مصر - يدعم التوقيت الصيفي (+3) والشتوي (+2)
 function getZeftaNow() {
     const now = new Date();
     const isDST = localStorage.getItem('zefta_dst') === '1';
@@ -610,15 +610,15 @@ function updateUI(user) {
         });
     }
 
-    // زرار سريع: زفتى الغربية مصر
+    // زرار سريع: طنطا الغربية مصر
     const setZeftaBtn = document.getElementById('set-zefta-btn');
     if (setZeftaBtn) {
         setZeftaBtn.addEventListener('click', () => {
-            userProfile.latitude = 30.8576;
-            userProfile.longitude = 31.0119;
-            document.getElementById('setup-lat').value = '30.8576';
-            document.getElementById('setup-lng').value = '31.0119';
-            locationStatus.textContent = 'تم تحديد: زفتى الغربية مصر ✓';
+            userProfile.latitude = 30.7865;
+            userProfile.longitude = 31.0004;
+            document.getElementById('setup-lat').value = '30.7865';
+            document.getElementById('setup-lng').value = '31.0004';
+            locationStatus.textContent = 'تم تحديد: طنطا الغربية مصر ✓';
             locationStatus.style.color = '#22c55e';
             checkSetupValidity();
         });
@@ -692,7 +692,7 @@ function updateUI(user) {
         if (userProfile.latitude && userProfile.longitude) {
             initPrayerTimes(userProfile.latitude, userProfile.longitude);
         } else {
-            initPrayerTimes(30.8576, 31.0119);
+            initPrayerTimes(30.7865, 31.0004);
         }
         const user = typeof auth !== 'undefined' && auth.currentUser;
         updateUI(user || null);
@@ -873,10 +873,10 @@ function applyUserProfileSettings() {
     if (userProfile.latitude && userProfile.longitude) {
         initPrayerTimes(userProfile.latitude, userProfile.longitude);
     } else {
-        // الإعداد الافتراضي: زفتى الغربية مصر
-        userProfile.latitude = 30.8576;
-        userProfile.longitude = 31.0119;
-        initPrayerTimes(30.8576, 31.0119);
+        // الإعداد الافتراضي: طنطا الغربية مصر
+        userProfile.latitude = 30.7865;
+        userProfile.longitude = 31.0004;
+        initPrayerTimes(30.7865, 31.0004);
     }
 
     // د) إعادة حساب النقاط
@@ -916,14 +916,15 @@ function initPrayerTimes(lat, long) {
         if (prayerInterval) clearInterval(prayerInterval);
 
         prayerInterval = setInterval(() => {
-            if (!prayerTimesData) return;
+            const ptd = prayerTimesData || window._prayerTimesData;
+            if (!ptd) return;
             const now = getZeftaNow();
             const times = {
-                fajr: parseTime(prayerTimesData.Fajr),
-                dhuhr: parseTime(prayerTimesData.Dhuhr),
-                asr: parseTime(prayerTimesData.Asr),
-                maghrib: parseTime(prayerTimesData.Maghrib),
-                isha: parseTime(prayerTimesData.Isha)
+                fajr: parseTime(ptd.Fajr),
+                dhuhr: parseTime(ptd.Dhuhr),
+                asr: parseTime(ptd.Asr),
+                maghrib: parseTime(ptd.Maghrib),
+                isha: parseTime(ptd.Isha)
             };
 
             updateSingleTimer('fajr', times.fajr, now);
@@ -931,7 +932,50 @@ function initPrayerTimes(lat, long) {
             updateSingleTimer('asr', times.asr, now);
             updateSingleTimer('maghrib', times.maghrib, now);
             updateSingleTimer('isha', times.isha, now);
+
+            updateNextPrayerBanner(times, now);
         }, 1000);
+    }
+
+    const PRAYER_NAMES = {
+        fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء'
+    };
+
+    function updateNextPrayerBanner(times, now) {
+        const banner = document.getElementById('next-prayer-banner');
+        const nameEl = document.getElementById('npb-prayer-name');
+        const countdownEl = document.getElementById('npb-countdown');
+        const timeEl = document.getElementById('npb-prayer-time');
+        if (!banner || !nameEl || !countdownEl) return;
+
+        let nextPrayer = null;
+        let nextPrayerDate = null;
+
+        for (const [key, date] of Object.entries(times)) {
+            let d = new Date(date);
+            if (key === 'fajr' && now.getHours() > 12) d = new Date(d.getTime() + 86400000);
+            if (d > now) { nextPrayer = key; nextPrayerDate = d; break; }
+        }
+
+        if (!nextPrayer) {
+            let fajrTomorrow = new Date(times.fajr.getTime() + 86400000);
+            nextPrayer = 'fajr';
+            nextPrayerDate = fajrTomorrow;
+        }
+
+        const diff = nextPrayerDate - now;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        nameEl.textContent = PRAYER_NAMES[nextPrayer];
+        countdownEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+        const tp = String(nextPrayerDate.getHours()).padStart(2,'0') + ':' + String(nextPrayerDate.getMinutes()).padStart(2,'0');
+        if (timeEl) timeEl.textContent = `وقت الصلاة: ${tp}`;
+
+        banner.classList.remove('prayer-passed', 'prayer-soon');
+        if (diff < 600000) banner.classList.add('prayer-soon');
     }
 
     function parseTime(timeStr) {
@@ -1134,7 +1178,7 @@ function initPrayerTimes(lat, long) {
         if (typeof userProfile !== 'undefined' && userProfile.latitude) {
             initPrayerTimes(userProfile.latitude, userProfile.longitude);
         } else {
-            initPrayerTimes(30.8576, 31.0119);
+            initPrayerTimes(30.7865, 31.0004);
         }
     }
 
@@ -7409,17 +7453,53 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBadgesPreview();
     initNightMode();
 
+    setInterval(() => {
+        const ptd = window._prayerTimesData;
+        if (!ptd) return;
+        const now = getZeftaNow();
+        const times = {
+            fajr: parseTime(ptd.Fajr),
+            dhuhr: parseTime(ptd.Dhuhr),
+            asr: parseTime(ptd.Asr),
+            maghrib: parseTime(ptd.Maghrib),
+            isha: parseTime(ptd.Isha)
+        };
+        const P_NAMES = { fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' };
+        const banner = document.getElementById('next-prayer-banner');
+        const nameEl = document.getElementById('npb-prayer-name');
+        const countdownEl = document.getElementById('npb-countdown');
+        const timeEl = document.getElementById('npb-prayer-time');
+        if (!banner || !nameEl || !countdownEl) return;
+        let nextPr = null, nextPrDate = null;
+        for (const [key, date] of Object.entries(times)) {
+            let d = new Date(date);
+            if (key === 'fajr' && now.getHours() > 12) d = new Date(d.getTime() + 86400000);
+            if (d > now) { nextPr = key; nextPrDate = d; break; }
+        }
+        if (!nextPr) { nextPr = 'fajr'; nextPrDate = new Date(times.fajr.getTime() + 86400000); }
+        const diff = nextPrDate - now;
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        nameEl.textContent = P_NAMES[nextPr];
+        countdownEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        const tp = String(nextPrDate.getHours()).padStart(2,'0') + ':' + String(nextPrDate.getMinutes()).padStart(2,'0');
+        if (timeEl) timeEl.textContent = `وقت الصلاة: ${tp}`;
+        banner.classList.remove('prayer-passed', 'prayer-soon');
+        if (diff < 600000) banner.classList.add('prayer-soon');
+    }, 1000);
+
     // إظهار مودال الإعدادات أول مرة إذا ما فيش بروفايل محفوظ
     if (!userProfile.name) {
         const setupModal = document.getElementById('setup-modal');
         if (setupModal) setupModal.classList.remove('hidden');
     }
 
-    // تحميل المواقيت افتراضياً لزفتى الغربية إذا لم يكن هناك موقع محفوظ
+    // تحميل المواقيت افتراضياً لطنطا الغربية إذا لم يكن هناك موقع محفوظ
     if (typeof userProfile !== 'undefined' && userProfile.latitude && userProfile.longitude) {
         initPrayerTimes(userProfile.latitude, userProfile.longitude);
     } else {
-        initPrayerTimes(30.8576, 31.0119);
+        initPrayerTimes(30.7865, 31.0004);
     }
     
     // Service Worker للوضع بدون إنترنت

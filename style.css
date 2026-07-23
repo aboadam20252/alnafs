@@ -4620,3 +4620,73 @@ html.night-comfort-mode .task-btn:not(.active):not(.completed) {
     from { opacity: 0; transform: translateX(-50%) translateY(10px); }
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+
+/* === Next Prayer Banner === */
+.next-prayer-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    margin-bottom: 1rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.1));
+    border: 1px solid rgba(99,102,241,0.2);
+    backdrop-filter: blur(10px);
+}
+.npb-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.npb-icon {
+    font-size: 1.8rem;
+    animation: npbPulse 2s infinite;
+}
+@keyframes npbPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+.npb-info {
+    display: flex;
+    flex-direction: column;
+}
+.npb-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+.npb-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent-color);
+}
+.npb-right {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.npb-countdown {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    direction: ltr;
+}
+.npb-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+.next-prayer-banner.prayer-passed .npb-countdown {
+    color: #ef4444;
+}
+.next-prayer-banner.prayer-soon .npb-countdown {
+    color: #f59e0b;
+    animation: npbBlink 1s infinite;
+}
+@keyframes npbBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
