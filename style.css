@@ -3569,9 +3569,10 @@ html[data-theme="dark"] .insight-box:hover {
 .points-summary-bar {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 12px;
     padding: 10px 16px;
+    padding-left: 70px;
     background: var(--prayer-bg);
     border: 1px solid var(--glass-border);
     border-radius: 14px;
@@ -3579,6 +3580,7 @@ html[data-theme="dark"] .insight-box:hover {
     backdrop-filter: blur(10px);
     position: relative;
     transition: transform 0.15s, box-shadow 0.15s;
+    overflow-x: auto;
 }
 .points-summary-bar:hover {
     transform: translateY(-1px);

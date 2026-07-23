@@ -3545,6 +3545,9 @@ function getFridayStart(date) {
     const todayGregorian = { weekday: { en: getZeftaNow().toLocaleDateString('en-US', { weekday: 'long' }) } };
     handleSunnahSystem(todayHijri, todayGregorian);
 
+    // تحديث الشاشة الرئيسية بالنقاط الإجمالية والسلسلة والعضوية فور اكتمال التهيئة
+    updateGlobalScore();
+
     // إظهار مودال الإعدادات أول مرة إذا ما فيش بروفايل محفوظ
     if (!userProfile.name) {
         const setupModal = document.getElementById('setup-modal');
@@ -5837,28 +5840,35 @@ let timeSpentSeconds = 0;
 const TIME_POINTS_RATE = 3;           // كل 3 دقائق = 1 نقطة
 const TIME_POINTS_MAX = 15;           // أقصى نقاط من الوقت في اليوم
 
-function loadTimeData() {
-    const key = `mohasba_time_${getDateKey(window.currentDate || getZeftaNow())}`;
+function loadTimeData(dateObj) {
+    const d = dateObj || window.currentDate || getZeftaNow();
+    const key = `mohasba_time_${getDateKey(d)}`;
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : { seconds: 0, points: 0 };
+    try {
+        return raw ? JSON.parse(raw) : { seconds: 0, points: 0 };
+    } catch(e) {
+        return { seconds: 0, points: 0 };
+    }
 }
 
 function saveTimeData(data) {
-    const key = `mohasba_time_${getDateKey(window.currentDate || getZeftaNow())}`;
+    const key = `mohasba_time_${getDateKey(getZeftaNow())}`;
     localStorage.setItem(key, JSON.stringify(data));
 }
 
 function getTimePoints() {
     const data = loadTimeData();
-    return Math.min(data.points, TIME_POINTS_MAX);
+    return Math.min(data.points || 0, TIME_POINTS_MAX);
 }
 
 function getTimeMaxPoints() { return TIME_POINTS_MAX; }
 
 function startTimeTracker() {
-    const saved = loadTimeData();
+    const saved = loadTimeData(getZeftaNow());
     timeSpentSeconds = saved.seconds || 0;
     updateTimeDisplay();
+
+    let lastPoints = Math.min(Math.floor(timeSpentSeconds / (TIME_POINTS_RATE * 60)), TIME_POINTS_MAX);
 
     if (timeTrackerInterval) clearInterval(timeTrackerInterval);
     timeTrackerInterval = setInterval(() => {
@@ -5868,6 +5878,11 @@ function startTimeTracker() {
         const data = { seconds: timeSpentSeconds, points: newPoints };
         saveTimeData(data);
         updateTimeDisplay();
+
+        if (newPoints !== lastPoints) {
+            lastPoints = newPoints;
+            if (typeof updateGlobalScore === 'function') updateGlobalScore();
+        }
     }, 1000);
 }
 
