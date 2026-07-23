@@ -5479,7 +5479,7 @@ function renderCustomAdhkar() {
     
     const data = loadCustomAdhkar();
     
-    if (data.items.length === 0) {
+    if (!data.items || data.items.length === 0) {
         container.innerHTML = '<p style="text-align:center;font-size:0.8rem;color:var(--text-secondary);">لا توجد أذكار مخصصة بعد</p>';
         return;
     }
@@ -5577,7 +5577,7 @@ function addCustomAdhkarFromModal() {
 function getCustomAdhkarScore() {
     const data = loadCustomAdhkar();
     let pts = 0;
-    data.items.forEach(item => {
+    (data.items || []).forEach(item => {
         if (item.done) pts += item.points || 0;
     });
     return pts;
@@ -5586,7 +5586,7 @@ function getCustomAdhkarScore() {
 function getCustomAdhkarMaxPoints() {
     const data = loadCustomAdhkar();
     let pts = 0;
-    data.items.forEach(item => { pts += item.points || 0; });
+    (data.items || []).forEach(item => { pts += item.points || 0; });
     return pts;
 }
 
@@ -5877,16 +5877,12 @@ function updateTimeDisplay() {
 
 function updateTotalPoints() {
     const data = calculateScoreAndSummary();
-    const pct = data.percentage;
-    const timeData = loadTimeData();
-    const timePts = Math.min(timeData.points, TIME_POINTS_MAX);
 
-    // حساب النقاط الفعلية من كل المصادر
+    // النقاط الفعلية من كل المصادر (الوقت مضمن مسبقاً في summary من خلال Override)
     let totalPts = 0;
     for (const key in data.summary) {
         totalPts += data.summary[key][0];
     }
-    totalPts += timePts;
 
     const el = document.getElementById('total-points-value');
     if (el) el.textContent = totalPts;
@@ -5916,7 +5912,6 @@ function getDailySummaryFull() {
     for (const key in data.summary) {
         totalPts += data.summary[key][0];
     }
-    totalPts += timePts;
 
     return {
         percentage: data.percentage,
