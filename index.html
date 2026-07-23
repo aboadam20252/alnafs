@@ -250,27 +250,6 @@
                   </div>
 
                   <div class="form-group">
-                      <label>الموقع الجغرافي (لمواقيت الصلاة)</label>
-                      <div style="display:flex; flex-direction:column; gap:8px;">
-                          <button id="get-location-btn" class="task-btn toggle-btn" style="width:100%; display:flex; gap:10px; justify-content:center; align-items:center;">
-                              <i class="fa-solid fa-location-dot"></i> تحديد موقعي تلقائياً (GPS)
-                          </button>
-                          <p style="font-size:0.75rem; color:var(--text-secondary); text-align:center;">— أو حدد يدوياً —</p>
-                          <div style="display:flex; gap:6px;">
-                              <input type="number" id="setup-lat" step="any" placeholder="خط العرض (lat)" class="glass-input" style="flex:1; font-size:0.85rem; padding:6px 10px;">
-                              <input type="number" id="setup-lng" step="any" placeholder="خط الطول (lng)" class="glass-input" style="flex:1; font-size:0.85rem; padding:6px 10px;">
-                          </div>
-                          <button type="button" id="save-location-btn" class="btn-primary" style="width:100%; padding:6px; font-size:0.85rem; background:#10b981;">
-                              <i class="fa-solid fa-check"></i> حفظ الموقع
-                          </button>
-                          <button type="button" id="set-zefta-btn" class="task-btn toggle-btn" style="width:100%; display:flex; gap:8px; justify-content:center; align-items:center; font-size:0.85rem; border-color:#f59e0b; color:#f59e0b;">
-                              <i class="fa-solid fa-map-marker-alt"></i> طنطا الغربية مصر (الإعداد السريع)
-                          </button>
-                      </div>
-                      <p id="location-status" style="font-size: 0.8rem; margin-top: 5px; color: var(--accent-color);"></p>
-                  </div>
-
-                  <div class="form-group">
                     <label>مستواك الحالي (لضبط كمية الأذكار)</label>
                     <select id="setup-level" class="glass-input">
                         <option value="3">مجتهد (الورد الكامل - كل الأذكار)</option>
@@ -334,20 +313,6 @@
                           تنويه للآيفون: يجب إضافة الموقع للشاشة الرئيسية (Add to Home Screen) لتعمل الإشعارات.
                       </p>
                   </div>
-                  <hr style="border-color: var(--glass-border); margin: 1.5rem 0;">
-                  <h4 style="margin-bottom: 1rem; color: var(--accent-color);"><i class="fa-solid fa-clock"></i> التوقيت</h4>
-                  <div class="form-group">
-                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                          <div>
-                              <label style="margin: 0;">التوقيت الصيفي (+3)</label>
-                              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 2px 0 0;">الوقت الحالي: <strong id="dst-current-time"></strong></p>
-                          </div>
-                          <label class="dst-toggle-switch">
-                              <input type="checkbox" id="dst-toggle" onchange="toggleDST(this.checked)">
-                              <span class="dst-toggle-slider"></span>
-                          </label>
-                      </div>
-                  </div>
               </div>
               <div class="modal-footer">
                   <button id="save-setup-btn" class="btn-primary" style="width: 100%;" onclick="closeSetupAndApply()"><i class="fa-solid fa-check"></i> تم</button>
@@ -355,26 +320,11 @@
           </div>
       </div>
 
-        <div id="main-layout-wrapper" class="main-layout-wrapper">
-          
-          <div id="next-prayer-banner" class="next-prayer-banner">
-            <div class="npb-left">
-              <div class="npb-icon">🕌</div>
-              <div class="npb-info">
-                <div class="npb-label">الصلاة القادمة</div>
-                <div class="npb-name" id="npb-prayer-name">--</div>
-              </div>
-            </div>
-            <div class="npb-right">
-              <div class="npb-clock" id="npb-clock">--:--:--</div>
-              <div class="npb-countdown" id="npb-countdown">متبقي: --:--:--</div>
-              <div class="npb-time" id="npb-prayer-time">--:--</div>
-            </div>
-          </div>
+        <div class="prayer-times-iframe-wrapper">
+          <iframe id="iframe3" src="https://timesprayer.today/widget_frame.php?frame=3&amp;id=119&amp;theme=w3-black&amp;sound=true"></iframe>
+        </div>
 
-          <div style="text-align:center; margin-bottom:1rem;">
-            <iframe src="https://pray.ahmedelywa.com/widget?lat=30.7833666&lng=30.9982536&method=5&lang=ar&theme=dark&compact=true" width="300" height="60" frameborder="0" style="border-radius: 8px;" loading="lazy"></iframe>
-          </div>
+        <div id="main-layout-wrapper" class="main-layout-wrapper">
 
           <div id="app-main-column" class="main-column">
             <div class="prayers-container" id="prayers-container-wrapper">
@@ -382,7 +332,6 @@
               <div class="prayer-item" id="fajr-card" data-aos="fade-up">
                 <div class="prayer-header-wrapper">
                   <span class="prayer-name">الفجر</span>
-                  <span class="prayer-timer" id="timer-fajr">--:--:--</span>
                 </div>
                 <div class="prayer-content-grid">
                   <div class="task-box">
@@ -426,7 +375,6 @@
               <div class="prayer-item" id="dhuhr-card" data-aos="fade-up">
                 <div class="prayer-header-wrapper">
                   <span class="prayer-name">الظهر</span>
-                  <span class="prayer-timer" id="timer-dhuhr">--:--:--</span>
                 </div>
                 <div class="prayer-content-grid">
                   <div class="task-box">
@@ -456,7 +404,6 @@
               <div class="prayer-item" id="asr-card" data-aos="fade-up">
                 <div class="prayer-header-wrapper">
                   <span class="prayer-name">العصر</span>
-                  <span class="prayer-timer" id="timer-asr">--:--:--</span>
                 </div>            
                 <div class="prayer-content-grid">
                   <div class="task-box">
@@ -488,7 +435,6 @@
               <div class="prayer-item" id="maghrib-card" data-aos="fade-up">
                 <div class="prayer-header-wrapper">
                   <span class="prayer-name">المغرب</span>
-                  <span class="prayer-timer" id="timer-maghrib">--:--:--</span>
                 </div>  
                 <div class="prayer-content-grid">
                   <div class="task-box">
@@ -517,7 +463,6 @@
               <div class="prayer-item" id="isha-card" data-aos="fade-up">
                 <div class="prayer-header-wrapper">
                   <span class="prayer-name">العشاء</span>
-                  <span class="prayer-timer" id="timer-isha">--:--:--</span>
                 </div>  
                 <div class="prayer-content-grid">
                   <div class="task-box">
@@ -1311,20 +1256,6 @@
           <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#10b981;vertical-align:middle;margin-left:4px;"></span> صائم</span>
           <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#ef4444;vertical-align:middle;margin-left:4px;"></span> لم أصم</span>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- مودال أوقات الصلاة المفصلة -->
-  <div id="detailed-prayer-modal" class="modal-overlay hidden" style="z-index: 9999;">
-    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-mosque" style="color: #10b981;"></i> مواقيت الصلاة</h3>
-        <button class="close-btn" onclick="closeDetailedPrayerModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div id="detailed-prayer-list"></div>
-        <div id="detailed-prayer-extra" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 10px;"></div>
       </div>
     </div>
   </div>

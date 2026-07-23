@@ -602,21 +602,6 @@ header.show-progress .header-progress-container {
     padding-bottom: 0;
 }
 
-.prayer-timer {
-    font-family: 'Outfit', sans-serif; 
-    font-weight: 700;
-    font-size: 0.9rem; 
-    color: var(--accent-color);
-    background: rgba(255, 255, 255, 0.1);
-    padding: 0.3rem 0.8rem;
-    border-radius: 1rem;
-    border: 1px solid var(--glass-border);
-    direction: rtl; 
-    white-space: nowrap; 
-    min-width: 130px;
-    text-align: center;
-}
-
 .glass-input {
     width: 100%;
     padding: 0.75rem 1rem;
@@ -3434,64 +3419,6 @@ html[data-theme="dark"] .insight-box:hover {
 }
 
 /* ========================================= */
-/* أوقات الصلاة المفصلة                       */
-/* ========================================= */
-.detailed-prayer-row {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    background: var(--prayer-bg);
-    border: 1px solid var(--glass-border);
-    transition: all 0.2s;
-}
-.detailed-prayer-row.current {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.1);
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
-}
-.detailed-prayer-row.next {
-    border-color: #8b5cf6;
-    background: rgba(139, 92, 246, 0.08);
-}
-.detailed-prayer-row.passed {
-    opacity: 0.5;
-}
-.prayer-row-name {
-    flex: 1;
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text-primary);
-}
-.prayer-row-time {
-    font-family: 'Outfit', monospace;
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--accent-color);
-    min-width: 60px;
-    text-align: center;
-}
-.prayer-row-status {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin-right: 10px;
-}
-.prayer-row-status.active-status {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-}
-.prayer-row-status.next-status {
-    background: rgba(139, 92, 246, 0.2);
-    color: #8b5cf6;
-}
-.prayer-row-status.passed-status {
-    background: rgba(128, 128, 128, 0.15);
-    color: var(--text-secondary);
-}
-
-/* ========================================= */
 /* العبادات الإضافية                          */
 /* ========================================= */
 .extra-worship-item {
@@ -4027,41 +3954,6 @@ html[data-theme="dark"] .insight-box:hover {
     color: white;
 }
 
-/* زرار التوقيت الصيفي */
-.dst-toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    flex-shrink: 0;
-}
-.dst-toggle-switch input { opacity: 0; width: 0; height: 0; }
-.dst-toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: rgba(0,0,0,0.15);
-    border-radius: 26px;
-    transition: 0.3s;
-}
-.dst-toggle-slider::before {
-    content: '';
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background: #fff;
-    border-radius: 50%;
-    transition: 0.3s;
-}
-.dst-toggle-switch input:checked + .dst-toggle-slider {
-    background: #f59e0b;
-}
-.dst-toggle-switch input:checked + .dst-toggle-slider::before {
-    transform: translateX(24px);
-}
-
 /* زرار فلتر المنجز فقط */
 .filter-completed-btn {
     background: rgba(34, 197, 94, 0.12);
@@ -4252,6 +4144,20 @@ html[data-theme="dark"] .insight-box:hover {
     font-size: 0.75rem;
     color: var(--text-secondary);
     font-style: italic;
+}
+
+/* === Prayer Times Iframe === */
+.prayer-times-iframe-wrapper {
+    max-width: 1200px;
+    margin: 0 auto 1rem auto;
+    padding: 0 1.5rem;
+    overflow: hidden;
+}
+.prayer-times-iframe-wrapper iframe {
+    display: block;
+    width: 100%;
+    height: 195px;
+    border: none;
 }
 
 /* === Daily Todo === */
@@ -4619,84 +4525,4 @@ html.night-comfort-mode .task-btn:not(.active):not(.completed) {
 @keyframes nightFadeIn {
     from { opacity: 0; transform: translateX(-50%) translateY(10px); }
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-/* === Next Prayer Banner === */
-.next-prayer-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    margin-bottom: 1rem;
-    border-radius: 16px;
-    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.1));
-    border: 1px solid rgba(99,102,241,0.2);
-    backdrop-filter: blur(10px);
-}
-.npb-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.npb-icon {
-    font-size: 1.8rem;
-    animation: npbPulse 2s infinite;
-}
-@keyframes npbPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-.npb-info {
-    display: flex;
-    flex-direction: column;
-}
-.npb-label {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    margin-bottom: 2px;
-}
-.npb-name {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--accent-color);
-}
-.npb-right {
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-.npb-clock {
-    font-size: 1.6rem;
-    font-weight: 800;
-    font-family: 'Courier New', monospace;
-    color: var(--text-primary);
-    letter-spacing: 1px;
-    direction: ltr;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-.npb-countdown {
-    font-size: 1.4rem;
-    font-weight: 800;
-    font-family: 'Courier New', monospace;
-    color: var(--text-primary);
-    letter-spacing: 1px;
-    direction: ltr;
-}
-.npb-time {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-.next-prayer-banner.prayer-passed .npb-countdown {
-    color: #ef4444;
-}
-.next-prayer-banner.prayer-soon .npb-countdown {
-    color: #f59e0b;
-    animation: npbBlink 1s infinite;
-}
-@keyframes npbBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
 }

@@ -7,21 +7,6 @@ function getZeftaNow() {
     return new Date(utcMs + offsetHours * 3600000);
 }
 
-function toggleDST(enabled) {
-    localStorage.setItem('zefta_dst', enabled ? '1' : '0');
-    updateDSTDisplay();
-}
-
-function updateDSTDisplay() {
-    const el = document.getElementById('dst-current-time');
-    if (el) {
-        const now = getZeftaNow();
-        el.textContent = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-    }
-    const toggle = document.getElementById('dst-toggle');
-    if (toggle) toggle.checked = localStorage.getItem('zefta_dst') === '1';
-}
-
 document.addEventListener('DOMContentLoaded', () => {
 
         // --- AOS Init ---
@@ -70,8 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // عناصر مودال الإعدادات الجديد
     const setupModal = document.getElementById('setup-modal');
     const saveSetupBtn = document.getElementById('save-setup-btn');
-    const getLocationBtn = document.getElementById('get-location-btn');
-    const locationStatus = document.getElementById('location-status');
 
     const settingsBtn = document.getElementById('settings-btn');
 
@@ -266,36 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.showCelebrationToast = showCelebrationToast;
 
-    // --- إصلاح زر الإعدادات (ضعه في البداية ليعمل فوراً) ---
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-            // 1. ملء البيانات
-            document.getElementById('setup-name').value = userProfile.name || '';
-            document.getElementById('setup-gender').value = userProfile.gender || 'male';
-            document.getElementById('setup-quran-goal').value = userProfile.quranGoal || '';
-            
-            // 2. تفعيل زر الحفظ
-            const saveBtn = document.getElementById('save-setup-btn');
-            if(saveBtn) saveBtn.disabled = false;
-
-            // 3. إظهار المودال
-            const modal = document.getElementById('setup-modal');
-            if(modal) modal.classList.remove('hidden');
-        });
-    }
-
-    // متغيرات البروفايل والمواقيت
+    // متغيرات البروفايل
     let userProfile = {
         name: '',
         gender: 'male',
-        quranGoal: '',
-        latitude: null,
-        longitude: null
+        quranGoal: ''
     };
-
-    window._prayerTimesData = null;
-    let prayerTimesData = null;
-    let prayerInterval = null;
 
     // تحميل البروفايل المحفوظ محلياً
     const savedProfile = localStorage.getItem('mohasba_user_profile');
@@ -501,7 +460,7 @@ function updateHeaderOnScroll() {
             auth.signOut().then(() => {
                 updateUI(null);
                 // تصفير الإعدادات عند الخروج
-                userProfile = { name: '', gender: 'male', quranGoal: '', latitude: null, longitude: null };
+                userProfile = { name: '', gender: 'male', quranGoal: '' };
                 applyUserProfileSettings(); // لإعادة الأزرار لوضعها الطبيعي
             }).catch((error) => {
                 console.error("Sign out error", error);
@@ -564,73 +523,10 @@ function updateUI(user) {
 
     // --- منطق البروفايل الجديد والمواقيت ---
 
-    // 1. زر تحديد الموقع في المودال
-    if (getLocationBtn) {
-        getLocationBtn.addEventListener('click', () => {
-            locationStatus.textContent = 'جاري تحديد الموقع...';
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userProfile.latitude = position.coords.latitude;
-                        userProfile.longitude = position.coords.longitude;
-                        document.getElementById('setup-lat').value = position.coords.latitude.toFixed(6);
-                        document.getElementById('setup-lng').value = position.coords.longitude.toFixed(6);
-                        locationStatus.textContent = 'تم تحديد الموقع بنجاح ✓';
-                        locationStatus.style.color = '#22c55e';
-                        checkSetupValidity();
-                    },
-                    (error) => {
-                        console.error(error);
-                        locationStatus.textContent = 'تعذر تحديد الموقع. تأكد من تفعيل GPS.';
-                        locationStatus.style.color = '#ef4444';
-                    }
-                );
-            } else {
-                locationStatus.textContent = 'المتصفح لا يدعم تحديد الموقع.';
-            }
-        });
-    }
-
-    // حفظ الموقع اليدوي
-    const saveLocationBtn = document.getElementById('save-location-btn');
-    if (saveLocationBtn) {
-        saveLocationBtn.addEventListener('click', () => {
-            const lat = parseFloat(document.getElementById('setup-lat').value);
-            const lng = parseFloat(document.getElementById('setup-lng').value);
-            if (isNaN(lat) || isNaN(lng)) {
-                locationStatus.textContent = 'يرجى إدخال خط عرض وطول صحيحين.';
-                locationStatus.style.color = '#ef4444';
-                return;
-            }
-            userProfile.latitude = lat;
-            userProfile.longitude = lng;
-            locationStatus.textContent = `تم الحفظ: ${lat.toFixed(4)}, ${lng.toFixed(4)} ✓`;
-            locationStatus.style.color = '#22c55e';
-            checkSetupValidity();
-        });
-    }
-
-    // زرار سريع: طنطا الغربية مصر
-    const setZeftaBtn = document.getElementById('set-zefta-btn');
-    if (setZeftaBtn) {
-        setZeftaBtn.addEventListener('click', () => {
-            userProfile.latitude = 30.7865;
-            userProfile.longitude = 31.0004;
-            document.getElementById('setup-lat').value = '30.7865';
-            document.getElementById('setup-lng').value = '31.0004';
-            locationStatus.textContent = 'تم تحديد: طنطا الغربية مصر ✓';
-            locationStatus.style.color = '#22c55e';
-            checkSetupValidity();
-        });
-    }
-
-    // 2. التحقق من صحة المدخلات لتفعيل زر الحفظ
+    // التحقق من صحة المدخلات لتفعيل زر الحفظ
     function checkSetupValidity() {
         const name = document.getElementById('setup-name').value;
         const goal = document.getElementById('setup-quran-goal').value;
-        const lat = document.getElementById('setup-lat')?.value;
-        const lng = document.getElementById('setup-lng')?.value;
-        const hasLocation = userProfile.latitude || (lat && lng);
 
         if (name && goal) {
             saveSetupBtn.disabled = false;
@@ -640,7 +536,7 @@ function updateUI(user) {
     }
 
     if (document.getElementById('setup-name')) {
-        ['setup-name', 'setup-quran-goal', 'setup-gender', 'setup-lat', 'setup-lng'].forEach(id => {
+        ['setup-name', 'setup-quran-goal', 'setup-gender'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.addEventListener('input', checkSetupValidity);
         });
@@ -652,13 +548,6 @@ function updateUI(user) {
         userProfile.gender = document.getElementById('setup-gender')?.value || 'male';
         userProfile.quranGoal = document.getElementById('setup-quran-goal')?.value || '';
         userProfile.level = document.getElementById('setup-level')?.value || '3';
-
-        const latVal = parseFloat(document.getElementById('setup-lat')?.value);
-        const lngVal = parseFloat(document.getElementById('setup-lng')?.value);
-        if (!isNaN(latVal) && !isNaN(lngVal)) {
-            userProfile.latitude = latVal;
-            userProfile.longitude = lngVal;
-        }
 
         notificationSettings.morningTime = document.getElementById('setup-morning-time')?.value || '06:00';
         notificationSettings.eveningTime = document.getElementById('setup-evening-time')?.value || '17:00';
@@ -678,7 +567,6 @@ function updateUI(user) {
 
     // ربط كل حقل بالحفظ التلقائي
     ['setup-name', 'setup-gender', 'setup-quran-goal', 'setup-level',
-     'setup-lat', 'setup-lng',
      'setup-morning-time', 'setup-evening-time', 'setup-wird-time'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', autoSaveSetup);
@@ -689,11 +577,6 @@ function updateUI(user) {
         autoSaveSetup();
         if (setupModal) setupModal.classList.add('hidden');
         applyUserProfileSettings();
-        if (userProfile.latitude && userProfile.longitude) {
-            initPrayerTimes(userProfile.latitude, userProfile.longitude);
-        } else {
-            initPrayerTimes(30.7865, 31.0004);
-        }
         const user = typeof auth !== 'undefined' && auth.currentUser;
         updateUI(user || null);
     };
@@ -869,171 +752,9 @@ function applyUserProfileSettings() {
         quranTitle.textContent = `ورد القرآن - ${goalText} (4 نقاط)`;
     }
 
-    // ج) تشغيل المواقيت
-    if (userProfile.latitude && userProfile.longitude) {
-        initPrayerTimes(userProfile.latitude, userProfile.longitude);
-    } else {
-        // الإعداد الافتراضي: طنطا الغربية مصر
-        userProfile.latitude = 30.7865;
-        userProfile.longitude = 31.0004;
-        initPrayerTimes(30.7865, 31.0004);
-    }
-
     // د) إعادة حساب النقاط
     updateGlobalScore();
 }
-
-    // 6. جلب المواقيت وتشغيل العداد
-function initPrayerTimes(lat, long) {
-    // نستخدم التاريخ الحالي أو المختار من التقويم لضمان التحديث
-    const date = currentDate || getZeftaNow(); 
-    const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-
-    function applyPrayerData(data) {
-        prayerTimesData = data.data ? data.data.timings : data.timings;
-        window._prayerTimesData = prayerTimesData;
-        startCountdown();
-
-        if (data.data && data.data.date) {
-            const hijri = data.data.date.hijri;
-            const gregorian = data.data.date.gregorian;
-            handleSunnahSystem(hijri, gregorian);
-        }
-    }
-
-    function tryBackupSource() {
-        fetch(`https://pray.ahmedelywa.com/api/prayer-times.json?lat=30.7833666&lng=30.9982536&method=5`)
-            .then(r => r.json())
-            .then(data => {
-                applyPrayerData(data);
-            })
-            .catch(err => console.error("Backup prayer times also failed:", err));
-    }
-
-    fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${long}&method=5`)
-        .then(response => response.json())
-        .then(data => {
-            applyPrayerData(data);
-        })
-        .catch(err => {
-            console.warn("Aladhan API failed, trying backup...", err);
-            tryBackupSource();
-        });
-}
-
-    function startCountdown() {
-        if (prayerInterval) clearInterval(prayerInterval);
-
-        prayerInterval = setInterval(() => {
-            const ptd = prayerTimesData || window._prayerTimesData;
-            if (!ptd) return;
-            const now = getZeftaNow();
-            const times = {
-                fajr: parseTime(ptd.Fajr),
-                dhuhr: parseTime(ptd.Dhuhr),
-                asr: parseTime(ptd.Asr),
-                maghrib: parseTime(ptd.Maghrib),
-                isha: parseTime(ptd.Isha)
-            };
-
-            updateSingleTimer('fajr', times.fajr, now);
-            updateSingleTimer('dhuhr', times.dhuhr, now);
-            updateSingleTimer('asr', times.asr, now);
-            updateSingleTimer('maghrib', times.maghrib, now);
-            updateSingleTimer('isha', times.isha, now);
-
-            updateNextPrayerBanner(times, now);
-        }, 1000);
-    }
-
-    const PRAYER_NAMES = {
-        fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء'
-    };
-
-    function updateNextPrayerBanner(times, now) {
-        const banner = document.getElementById('next-prayer-banner');
-        const nameEl = document.getElementById('npb-prayer-name');
-        const countdownEl = document.getElementById('npb-countdown');
-        const timeEl = document.getElementById('npb-prayer-time');
-        if (!banner || !nameEl || !countdownEl) return;
-
-        let nextPrayer = null;
-        let nextPrayerDate = null;
-
-        for (const [key, date] of Object.entries(times)) {
-            let d = new Date(date);
-            if (key === 'fajr' && now.getHours() > 12) d = new Date(d.getTime() + 86400000);
-            if (d > now) { nextPrayer = key; nextPrayerDate = d; break; }
-        }
-
-        if (!nextPrayer) {
-            let fajrTomorrow = new Date(times.fajr.getTime() + 86400000);
-            nextPrayer = 'fajr';
-            nextPrayerDate = fajrTomorrow;
-        }
-
-        const diff = nextPrayerDate - now;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-
-        nameEl.textContent = PRAYER_NAMES[nextPrayer];
-        countdownEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-
-        const tp = String(nextPrayerDate.getHours()).padStart(2,'0') + ':' + String(nextPrayerDate.getMinutes()).padStart(2,'0');
-        if (timeEl) timeEl.textContent = `وقت الصلاة: ${tp}`;
-
-        banner.classList.remove('prayer-passed', 'prayer-soon');
-        if (diff < 600000) banner.classList.add('prayer-soon');
-    }
-
-    function parseTime(timeStr) {
-        const [hours, minutes] = timeStr.split(':').map(Number);
-        const date = getZeftaNow();
-        date.setHours(hours, minutes, 0, 0);
-        return date;
-    }
-    window.parseTime = parseTime;
-
-    function updateSingleTimer(prayerId, prayerDate, now) {
-        const timerElement = document.getElementById(`timer-${prayerId}`);
-        if (!timerElement) return;
-
-        // --- المنطق الذكي لتعديل التاريخ (خاص بالفجر) ---
-        // إذا كانت الصلاة هي الفجر، والساعة الآن تعدت 12 ظهراً، إذن نحن ننتظر فجر الغد
-        if (prayerId === 'fajr' && now.getHours() > 12) {
-            prayerDate = new Date(prayerDate.getTime() + (24 * 60 * 60 * 1000));
-        }
-
-        const diff = prayerDate - now;
-
-        if (diff > 0) {
-            // --- الحالة الأولى: الصلاة لسه مجاتش (متبقي) ---
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            // الصيغة: متبقي: 02:30:15
-            timerElement.textContent = `متبقي: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            timerElement.style.color = 'var(--accent-color)'; // لون عادي (أزرق/بنفسجي)
-            timerElement.style.borderColor = 'var(--glass-border)'; // إطار عادي
-            
-        } else {
-            // --- الحالة الثانية: الصلاة وقتها دخل (مضى) ---
-            const passed = Math.abs(diff);
-            const hours = Math.floor(passed / (1000 * 60 * 60));
-            const minutes = Math.floor((passed % (1000 * 60 * 60)) / (1000 * 60));
-
-            // الصيغة: مضى: 00:45
-            timerElement.textContent = `مضى: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-
-            // تغيير اللون للأحمر للتنبيه
-            timerElement.style.color = '#ef4444'; 
-            timerElement.style.borderColor = '#ef4444';
-        }
-    }
-
 
     // --- Date Logic ---
     // --- Dual Calendar Variables ---
@@ -1182,13 +903,6 @@ function initPrayerTimes(lat, long) {
             syncFromCloud(); // سيقوم بالتحميل من السحابة ثم التخزين المحلي ثم العرض
         } else {
             loadData(); // تحميل من التخزين المحلي مباشرة
-        }
-        
-        // 3. تحديث المواقيت لليوم الجديد
-        if (typeof userProfile !== 'undefined' && userProfile.latitude) {
-            initPrayerTimes(userProfile.latitude, userProfile.longitude);
-        } else {
-            initPrayerTimes(30.7865, 31.0004);
         }
     }
 
@@ -2421,6 +2135,7 @@ function saveExtras() {
         extraWorshipList.innerHTML = '';
         const extras = PRAYER_EXTRAS[prayer] || [];
         const prayerCard = document.getElementById(`${prayer}-card`);
+        if (!prayerCard) return;
         const existingExtras = Array.from(prayerCard.querySelectorAll('.extra-worship-box .task-btn')).map(btn => btn.textContent.trim());
 
         extras.forEach(extra => {
@@ -2542,9 +2257,12 @@ function saveExtras() {
     if (savedNotifSettings) {
         notificationSettings = JSON.parse(savedNotifSettings);
         // تحديث الحقول في المودال
-        document.getElementById('setup-morning-time').value = notificationSettings.morningTime;
-        document.getElementById('setup-evening-time').value = notificationSettings.eveningTime;
-        document.getElementById('setup-wird-time').value = notificationSettings.wirdTime;
+        const morningTimeEl = document.getElementById('setup-morning-time');
+        const eveningTimeEl = document.getElementById('setup-evening-time');
+        const wirdTimeEl = document.getElementById('setup-wird-time');
+        if (morningTimeEl) morningTimeEl.value = notificationSettings.morningTime;
+        if (eveningTimeEl) eveningTimeEl.value = notificationSettings.eveningTime;
+        if (wirdTimeEl) wirdTimeEl.value = notificationSettings.wirdTime;
     }
 
     // 4. الدالة الرئيسية: المراقب الدوري (يعمل كل دقيقة، وده بيشتغل بس والتطبيق مفتوح فعليًا -
@@ -2574,11 +2292,6 @@ function saveExtras() {
         // ب) تنبيهات عبادات الغد (نثبتها مثلاً الساعة 9 مساءً)
         if (currentTime === "21:00") {
             checkTomorrowWorships();
-        }
-
-        // ج) تنبيه الصلوات (قبل الصلاة بـ 15 دقيقة)
-        if (prayerTimesData) {
-            checkPrayerReminders(now);
         }
 
     }, 60000); // يفحص كل 60 ثانية
@@ -2614,58 +2327,6 @@ function saveExtras() {
         if (dayName === 'Monday' || dayName === 'Thursday') {
             sendNotification("صيام غداً", `غداً يوم ${dayName === 'Monday' ? 'الإثنين' : 'الخميس'}، هل نويت الصيام؟`);
         }
-    }
-
-    // منطق فحص الصلوات (الأكثر تعقيداً)
-    function checkPrayerReminders(now) {
-        const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-        const prayerNamesAr = {'Fajr': 'الفجر', 'Dhuhr': 'الظهر', 'Asr': 'العصر', 'Maghrib': 'المغرب', 'Isha': 'العشاء'};
-        
-        prayers.forEach((prayer, index) => {
-            if (!prayerTimesData[prayer]) return;
-
-            const timeStr = prayerTimesData[prayer];
-            const pTime = parseTime(timeStr); // دالة موجودة في كودك السابق
-            
-            // حساب الوقت قبل 15 دقيقة
-            const reminderTime = new Date(pTime.getTime() - 15 * 60000);
-
-            // هل الوقت الآن هو وقت التنبيه؟
-            if (now.getHours() === reminderTime.getHours() && now.getMinutes() === reminderTime.getMinutes()) {
-                
-                // هنا الجزء الذكي: هل صليت الصلاة السابقة؟
-                if (index > 0) {
-                    const prevPrayer = prayers[index - 1].toLowerCase(); // مثلاً dhuhr
-                    
-                    // البحث عن الزر الخاص بالصلاة السابقة في الصفحة للتحقق من الـ class
-                    // نفترض أن أزرار الصلاة لها data-prayer="dhuhr" أو IDs معروفة
-                    // حسب كودك السابق، الأزرار داخل كروت. سنبحث عن الكارد ثم الزر النشط
-                    
-                    const prevCard = document.getElementById(`${prevPrayer}-card`);
-                    let isDone = false;
-                    
-                    if (prevCard) {
-                        // هل يوجد أي زر "active" داخل كارد الصلاة السابقة؟
-                        // (سواء في المسجد أو في البيت)
-                        const activeBtn = prevCard.querySelector('.prayer-btn.active');
-                        if (activeBtn) isDone = true;
-                    }
-
-                    if (!isDone) {
-                        sendNotification(
-                            "تنبيه هام!", 
-                            `باقي 15 دقيقة على ${prayerNamesAr[prayer]}، ولم تسجل أداء صلاة ${prayerNamesAr[prayers[index-1]]} بعد!`
-                        );
-                    } else {
-                        // لو صلى، ممكن نبعتله تذكير عادي بالاستعداد للصلاة القادمة
-                        sendNotification(
-                            "اقتربت الصلاة", 
-                            `باقي 15 دقيقة على صلاة ${prayerNamesAr[prayer]}، استعد للوضوء.`
-                        );
-                    }
-                }
-            }
-        });
     }
 
     // --- Warning Section Logic ---
@@ -2775,19 +2436,21 @@ window.openWarning = function(type) {
     if (!data) return;
 
     // 1. تعبئة العناوين والنصوص الأساسية
-    document.getElementById('warning-modal-title').textContent = data.title;
-    document.getElementById('warning-def').textContent = data.def;
-    document.getElementById('warning-quran').textContent = data.quran;
-    document.getElementById('warning-hadith').textContent = data.hadith;
+    let _el;
+    if ((_el = document.getElementById('warning-modal-title'))) _el.textContent = data.title;
+    if ((_el = document.getElementById('warning-def'))) _el.textContent = data.def;
+    if ((_el = document.getElementById('warning-quran'))) _el.textContent = data.quran;
+    if ((_el = document.getElementById('warning-hadith'))) _el.textContent = data.hadith;
     
     // 2. تعبئة المثال اليومي (كما هو)
     const dailyEx = getDailyExample(data.dailyExamples);
-    document.getElementById('warning-daily-example').textContent = `"${dailyEx}"`;
+    if ((_el = document.getElementById('warning-daily-example'))) _el.textContent = `"${dailyEx}"`;
 
     // 3. إعداد قسم القصة (Logic الجديد)
     const storyContent = document.getElementById('warning-story-content');
     const storyText = document.getElementById('story-text');
     const btnStory = document.getElementById('btn-show-story');
+    if (!storyContent || !storyText || !btnStory) return;
 
     // إعادة تعيين الحالة عند فتح المودال
     storyContent.classList.add('hidden'); 
@@ -2837,11 +2500,7 @@ document.getElementById('close-warning-modal')?.addEventListener('click', () => 
     document.getElementById('warning-modal').classList.add('hidden');
 });
 
-    if (closeWarningBtn) {
-        closeWarningBtn.addEventListener('click', () => {
-            warningModal.classList.add('hidden');
-        });
-    }
+    // (closeWarningBtn listener already set above via optional chaining)
 
     window.addEventListener('click', (e) => {
         if (e.target === warningModal) {
@@ -3217,16 +2876,7 @@ if (dlAnalyticsBtn) {
     });
 }
 
-// عند تحميل الصفحة، شغل الشارت
-document.addEventListener('DOMContentLoaded', () => {
-    // تأخير بسيط لضمان تحميل المكتبات
-    setTimeout(() => {
-        updateCharts('week');
-    }, 1000);
-});
-
-
-    // --- إعدادات نظام البونص والسنن ---
+// --- إعدادات نظام البونص والسنن ---
 const sunnahEvents = [
     // 1. الأيام البيض (صيام)
     {
@@ -3293,7 +2943,7 @@ const sunnahEvents = [
     }
 ];
 
-// --- الدالة الرئيسية للتحكم (تُستدعى من initPrayerTimes) ---
+// --- الدالة الرئيسية للتحكم في السُّنن ---
 function handleSunnahSystem(hijriData, gregorianData) {
     const hijriDay = hijriData.day; // رقم اليوم الهجري (مثلاً "13")
     const weekDay = gregorianData.weekday.en; // اسم اليوم (مثلاً "Monday")
@@ -3359,20 +3009,6 @@ function renderBonusSection(bonus) {
 }
 
 // --- تشغيل التنبيهات (الجرس) ---
-function renderNotification(notif) {
-    const notifBtn = document.getElementById('notification-btn');
-    const badge = document.getElementById('notif-badge');
-    const popupContent = document.getElementById('notif-content');
-
-    if (notif) {
-        notifBtn.classList.remove('hidden'); // إظهار الجرس
-        badge.classList.remove('hidden');    // إظهار النقطة الحمراء
-        popupContent.textContent = notif.notifyMsg;
-    } else {
-        badge.classList.add('hidden');
-        popupContent.textContent = "لا توجد تنبيهات خاصة للغد.";
-    }
-}
 
     // --- دوال التحكم في الـ UI الخاص بالبونص والتنبيهات ---
 
@@ -3467,21 +3103,23 @@ async function downloadReport(period) {
     const periodTitle = period === 'week' ? 'التقرير الأسبوعي المفصل' : 'التقرير الشهري الشامل';
 
     // تعبئة البيانات الأساسية
-    document.getElementById('pdf-period-text').textContent = `${periodTitle} | ${dateStr}`;
-    document.getElementById('pdf-total-score').textContent = historyData.averageScore + '%';
-    
+    let _el2;
+    if ((_el2 = document.getElementById('pdf-period-text'))) _el2.textContent = `${periodTitle} | ${dateStr}`;
     const scoreCircle = document.getElementById('pdf-total-score');
-    scoreCircle.style.background = historyData.averageScore >= 80 ? '#10b981' : historyData.averageScore >= 50 ? '#eab308' : '#ef4444';
+    if (scoreCircle) {
+        scoreCircle.textContent = historyData.averageScore + '%';
+        scoreCircle.style.background = historyData.averageScore >= 80 ? '#10b981' : historyData.averageScore >= 50 ? '#eab308' : '#ef4444';
+    }
 
-    document.getElementById('pdf-perfect-days').textContent = historyData.perfectDays;
-    document.getElementById('pdf-best-day').textContent = historyData.bestDay;
+    if ((_el2 = document.getElementById('pdf-perfect-days'))) _el2.textContent = historyData.perfectDays;
+    if ((_el2 = document.getElementById('pdf-best-day'))) _el2.textContent = historyData.bestDay;
     
     // نسب عامة
     const prayerAvg = historyData.radarData['الصلوات'] || 0;
     const quranAvg = historyData.radarData['القرآن'] || 0;
-    document.getElementById('pdf-prayer-avg').textContent = prayerAvg + '%';
-    document.getElementById('pdf-quran-avg').textContent = quranAvg + '%';
-    document.getElementById('pdf-generated-date').textContent = `تاريخ الإصدار: ${getZeftaNow().toLocaleString('ar-EG')}`;
+    if ((_el2 = document.getElementById('pdf-prayer-avg'))) _el2.textContent = prayerAvg + '%';
+    if ((_el2 = document.getElementById('pdf-quran-avg'))) _el2.textContent = quranAvg + '%';
+    if ((_el2 = document.getElementById('pdf-generated-date'))) _el2.textContent = `تاريخ الإصدار: ${getZeftaNow().toLocaleString('ar-EG')}`;
 
     // تحويل الشارتات لصور
     const lineCanvas = document.getElementById('progressChart');
@@ -3491,6 +3129,7 @@ async function downloadReport(period) {
 
     // === بناء الجدول التفصيلي (الجزء المهم) ===
     const tbody = document.getElementById('pdf-daily-rows');
+    if (!tbody) return;
     tbody.innerHTML = ''; 
 
     // تعديل هيدر الجدول (يجب أن يكون في HTML، لكن يمكننا تعديله هنا برمجياً لضمان التنسيق)
@@ -3573,6 +3212,7 @@ async function downloadReport(period) {
     // تجهيز الـ PDF
     const container = document.getElementById('report-template-container');
     const element = document.getElementById('pdf-content');
+    if (!container || !element) { if(btn) btn.innerHTML = originalBtnText; return; }
     container.style.opacity = '1'; 
 
     const opt = {
@@ -3797,27 +3437,11 @@ function getFridayStart(date) {
 
             document.getElementById('setup-level').value = userProfile.level || '3';
 
-            // 2. تحديث حالة الموقع
-            const locStatus = document.getElementById('location-status');
-            const latInput = document.getElementById('setup-lat');
-            const lngInput = document.getElementById('setup-lng');
-            if (userProfile.latitude && userProfile.longitude) {
-                locStatus.textContent = 'الموقع محدد مسبقاً ✓';
-                locStatus.style.color = '#22c55e';
-                if (latInput) latInput.value = userProfile.latitude;
-                if (lngInput) lngInput.value = userProfile.longitude;
-            } else {
-                locStatus.textContent = '';
-                if (latInput) latInput.value = '';
-                if (lngInput) lngInput.value = '';
-            }
-
-            // 3. تفعيل زر الحفظ فوراً (لأن البيانات موجودة)
+            // 2. تفعيل زر الحفظ فوراً (لأن البيانات موجودة)
             checkSetupValidity();
 
-            // 4. فتح المودال
+            // 3. فتح المودال
             document.getElementById('setup-modal').classList.remove('hidden');
-            updateDSTDisplay();
         });
     }
 // --- حل مشكلة الأزرار (تعريف الدوال لتراها HTML) ---
@@ -3890,32 +3514,47 @@ function getFridayStart(date) {
     };
     updateGlobalScore = window.updateGlobalScore;
 
+    // --- إضافات DOMContentLoaded المفقودة (كانت في listener منفصل وسببت ReferenceError) ---
+    loadFastingData();
+    updateFastingTodayStatus();
+    loadExtraWorships();
+    renderStreakDisplay();
+    renderGoalsPreview();
+    updateSunnahPreview();
+    startTimeTracker();
+    updateMembershipPreview();
+    initAddWorshipModal();
+    renderCustomAdhkar();
+    renderDailyTodo();
+    renderSmartReminders();
+    setInterval(renderSmartReminders, 30 * 60 * 1000);
+    renderBadgesPreview();
+    initNightMode();
+
+    // تشغيل نظام السُّنن (يحتاج بيانات هجرية)
+    const todayHijri = kuwaitiCalendar(getZeftaNow());
+    const todayGregorian = { weekday: { en: getZeftaNow().toLocaleDateString('en-US', { weekday: 'long' }) } };
+    handleSunnahSystem(todayHijri, todayGregorian);
+
+    // إظهار مودال الإعدادات أول مرة إذا ما فيش بروفايل محفوظ
+    if (!userProfile.name) {
+        const setupModal = document.getElementById('setup-modal');
+        if (setupModal) setupModal.classList.remove('hidden');
+    }
+
+    // Service Worker للوضع بدون إنترنت
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            console.log('Service Worker registered for offline mode');
+        }).catch(err => {
+            console.log('SW registration skipped:', err.message);
+        });
+    }
+
+    // تأخير بسيط لتشغيل الشارت بعد تحميل المكتبات
+    setTimeout(() => { updateCharts('week'); }, 1000);
+
 }); // <--- دي قفلة الـ DOMContentLoaded اللي في آخر الملف عندك
-
-// =========================================
-//  نظام المحلل الذكي والإشعارات المقارنة
-// =========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // ننتظر قليلاً بعد تحميل الموقع ثم نفحص
-    setTimeout(runDailyAnalysis, 2000);
-});
-
-// =========================================
-//  دوال مساعدة هامة (أضفها في ملف script.js)
-// =========================================
-
-// دالة استخراج مفتاح التخزين الموحد
-function getStorageKey(date) {
-    if (!date) date = getZeftaNow();
-    return `mohasba_data_${getDateKey(date)}`;
-}
-
-// دالة استخراج التاريخ بصيغة موحدة (YYYY-M-D)
-function getDateKey(date) {
-    if (!date) date = getZeftaNow();
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-}
 
 // =========================================
 //  نظام المحلل الذكي (محدث ليعمل دائماً)
@@ -4030,12 +3669,18 @@ function analyzeBreakdown(curr, prev) {
 
 function showSmartPopup(icon, title, body, details) {
     const modal = document.getElementById('smart-report-modal');
-    document.getElementById('smart-icon').textContent = icon;
-    document.getElementById('smart-title').textContent = title;
-    document.getElementById('smart-message').textContent = body;
-
+    const smartIcon = document.getElementById('smart-icon');
+    const smartTitle = document.getElementById('smart-title');
+    const smartMessage = document.getElementById('smart-message');
     const detailsContainer = document.getElementById('smart-details');
+    if (!modal || !smartIcon || !smartTitle || !smartMessage || !detailsContainer) return;
+
+    smartIcon.textContent = icon;
+    smartTitle.textContent = title;
+    smartMessage.textContent = body;
+
     detailsContainer.innerHTML = '';
+    detailsContainer.style.display = '';
 
     if (details.length > 0) {
         detailsContainer.innerHTML = '<div style="margin-bottom:5px; font-weight:bold; color:#555">تفاصيل التغيير:</div>';
@@ -4126,6 +3771,9 @@ function startAppTour() {
         onDestroyed: () => {
             localStorage.setItem('tour_seen_v2', 'true'); // تسجيل أن المستخدم رأى التحديث الجديد
             
+            // تشغيل المحلل الذكي بعد انتهاء الجولة
+            setTimeout(() => { if (typeof runDailyAnalysis === 'function') runDailyAnalysis(); }, 2000);
+            
             // إغلاق قائمة الموبايل
             if (window.innerWidth < 600) {
                 document.getElementById('action-icons')?.classList.remove('show-mobile');
@@ -4156,16 +3804,7 @@ function startAppTour() {
                     side: "bottom", align: 'center' 
                 } 
             },
-            // 2. المواقيت الجغرافية
-            { 
-                element: '.prayer-timer', 
-                popover: { 
-                    title: '📍 المدة المتبقية بدقة', 
-                    description: 'يتم الآن حساب الوقت المتبقي للصلاة بناءً على موقعك الجغرافي الفعلي (GPS) لضمان الدقة التامة.', 
-                    side: "left", align: 'start' 
-                } 
-            },
-            // 3. البونص والعبادات الموسمية
+            // 2. البونص والعبادات الموسمية
             { 
                 element: '#bonus-section', 
                 popover: { 
@@ -4232,58 +3871,6 @@ function startAppTour() {
     });
 
     driverObj.drive();
-}
-// =========================================
-//  2. نظام المحلل الذكي (Daily Smart Analysis)
-// =========================================
-
-function runDailyAnalysis(force = false) {
-    const todayStr = getZeftaNow().toLocaleDateString('en-CA'); // YYYY-MM-DD
-    const lastCheck = localStorage.getItem('last_smart_check_date');
-    
-    // لو لم يتم الفحص اليوم، أو لو تم إجبار الدالة (للاختبار)
-    if (lastCheck !== todayStr || force) {
-        
-        const yesterday = getZeftaNow(); yesterday.setDate(yesterday.getDate() - 1);
-        const dayBefore = getZeftaNow(); dayBefore.setDate(dayBefore.getDate() - 2);
-
-        // (دالة getStoredStats و analyzeBreakdown يجب أن تكون معرفة في الجزء العلوي من ملفك)
-        // إذا لم تكن معرفة، تأكد من نسخها من الردود السابقة
-        if(typeof getStoredStats !== 'function') return; 
-
-        const dataYest = getStoredStats(yesterday);
-        const dataBefore = getStoredStats(dayBefore);
-
-        let title, body, icon, analysis = [];
-
-        if (!dataYest) {
-            icon = "👋";
-            title = "افتقدناك بالأمس!";
-            body = "لم نجد سجلاً ليوم أمس. لا بأس، المهم أنك هنا اليوم. جدد النية وابدأ صفحة جديدة.";
-        } else {
-            const scoreYest = dataYest.totalScore || 0;
-            const scoreBefore = dataBefore ? (dataBefore.totalScore || 0) : 0;
-            const diff = scoreYest - scoreBefore;
-
-            analysis = typeof analyzeBreakdown === 'function' ? analyzeBreakdown(dataYest.breakdown, dataBefore?.breakdown) : [];
-
-            if (scoreYest === 0) {
-                icon = "😔"; title = "يومك كان فارغاً!"; body = "سجلت الدخول أمس لكنك لم تنجز شيئاً. الأيام تمضي، فلا تتركها تسرقك.";
-            } else if (diff > 0) {
-                icon = "🏆"; title = `أحسنت! تقدمت بنسبة ${diff}%`; body = `أداؤك أمس (${scoreYest}%) كان أفضل من اليوم الذي قبله.`;
-            } else if (diff < 0) {
-                icon = "📉"; title = `تراجع بسيط (${Math.abs(diff)}%-)`; body = `أداؤك أمس (${scoreYest}%) كان أقل من قبله. استدرك ما فاتك.`;
-            } else {
-                icon = "⚖️"; title = "مستواك ثابت"; body = `حافظت على نفس المستوى (${scoreYest}%). الثبات جيد، لكن المؤمن يطمح للزيادة.`;
-            }
-        }
-
-        // عرض النافذة (دالة showSmartPopup من الردود السابقة)
-        if(typeof showSmartPopup === 'function') showSmartPopup(icon, title, body, analysis);
-
-        // تسجيل الفحص
-        if (!force) localStorage.setItem('last_smart_check_date', todayStr);
-    }
 }
 
 // =========================================
@@ -4410,7 +3997,8 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('selected_bg_image');
             applyBgImage('none', false);
             bgImgBtns.forEach(b => b.classList.remove('active'));
-            document.querySelector('.bg-img-btn[data-img-path="none"]').classList.add('active');
+            const noneBtn = document.querySelector('.bg-img-btn[data-img-path="none"]');
+            if (noneBtn) noneBtn.classList.add('active');
         });
     });
 
@@ -4508,17 +4096,20 @@ function openConcept(conceptId) {
     if (!data) return;
 
     // تعبئة البيانات في النافذة
-    document.querySelector('#concept-modal-title span').textContent = data.title;
-    document.getElementById('concept-modal-text').textContent = data.text || '';
+    let _el3;
+    if ((_el3 = document.querySelector('#concept-modal-title span'))) _el3.textContent = data.title;
+    if ((_el3 = document.getElementById('concept-modal-text'))) _el3.textContent = data.text || '';
     
     // حقن الفيديو (لو موجود فقط، وإلا نخفي الحاوية)
     const videoContainer = document.getElementById('concept-modal-video');
-    if (data.video && data.video.trim() !== '') {
-        videoContainer.style.display = 'block';
-        videoContainer.innerHTML = `<iframe src="${data.video}" title="${data.title}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 10px;"></iframe>`;
-    } else {
-        videoContainer.style.display = 'none';
-        videoContainer.innerHTML = '';
+    if (videoContainer) {
+        if (data.video && data.video.trim() !== '') {
+            videoContainer.style.display = 'block';
+            videoContainer.innerHTML = `<iframe src="${data.video}" title="${data.title}" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 10px;"></iframe>`;
+        } else {
+            videoContainer.style.display = 'none';
+            videoContainer.innerHTML = '';
+        }
     }
     
     // إظهار النافذة
@@ -4527,14 +4118,16 @@ function openConcept(conceptId) {
 
 function closeConceptModal() {
     // إخفاء النافذة
-    document.getElementById('concept-modal').classList.add('hidden');
+    let _el4;
+    if ((_el4 = document.getElementById('concept-modal'))) _el4.classList.add('hidden');
     
     // إفراغ محتوى الفيديو لإيقاف تشغيله بالخلفية
-    document.getElementById('concept-modal-video').innerHTML = ''; 
+    if ((_el4 = document.getElementById('concept-modal-video'))) _el4.innerHTML = ''; 
 }
 
 // إغلاق النافذة عند الضغط خارجها (اختياري)
-document.getElementById('concept-modal').addEventListener('click', function(e) {
+const conceptModalEl = document.getElementById('concept-modal');
+if (conceptModalEl) conceptModalEl.addEventListener('click', function(e) {
     if (e.target === this) {
         closeConceptModal();
     }
@@ -5013,148 +4606,6 @@ function updateFastingTodayStatus() {
 
 
 // =========================================
-// أوقات الصلاة المفصلة
-// =========================================
-
-function openDetailedPrayerModal() {
-    const modal = document.getElementById('detailed-prayer-modal');
-    if (!modal) return;
-    renderDetailedPrayerTimes();
-    modal.classList.remove('hidden');
-}
-
-function closeDetailedPrayerModal() {
-    const modal = document.getElementById('detailed-prayer-modal');
-    if (modal) modal.classList.add('hidden');
-}
-
-function renderDetailedPrayerTimes() {
-    const listEl = document.getElementById('detailed-prayer-list');
-    const extraEl = document.getElementById('detailed-prayer-extra');
-    if (!listEl) return;
-
-    // استخدام بيانات المواقيت المحفوظة
-    const currentPrayerData = window._prayerTimesData;
-    if (!currentPrayerData) {
-        listEl.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">لم يتم تحديد الموقع بعد. يرجى تحديد الموقع من الإعدادات.</p>';
-        if (extraEl) extraEl.innerHTML = '';
-        return;
-    }
-
-    const prayers = [
-        { name: 'الفجر', time: currentPrayerData.Fajr, icon: 'fa-cloud-moon', color: '#6366f1' },
-        { name: 'الشروق', time: currentPrayerData.Sunrise, icon: 'fa-sun', color: '#f59e0b' },
-        { name: 'الظهر', time: currentPrayerData.Dhuhr, icon: 'fa-sun', color: '#eab308' },
-        { name: 'العصر', time: currentPrayerData.Asr, icon: 'fa-cloud-sun', color: '#f97316' },
-        { name: 'المغرب', time: currentPrayerData.Maghrib, icon: 'fa-cloud-moon', color: '#ef4444' },
-        { name: 'العشاء', time: currentPrayerData.Isha, icon: 'fa-moon', color: '#8b5cf6' }
-    ];
-
-    const now = getZeftaNow();
-    let currentIdx = -1;
-    let nextIdx = -1;
-
-    prayers.forEach((prayer, idx) => {
-        if (prayer.name === 'الشروق') return;
-        const time = parseTime(prayer.time);
-        if (now >= time && (idx === prayers.length - 1 || now < parseTime(prayers[idx + 1].time))) {
-            currentIdx = idx;
-        }
-    });
-
-    // تحديد الصلاة القادمة
-    for (let i = 0; i < prayers.length; i++) {
-        if (prayers[i].name === 'الشروق') continue;
-        const time = parseTime(prayers[i].time);
-        if (now < time) {
-            nextIdx = i;
-            break;
-        }
-    }
-
-    listEl.innerHTML = prayers.map((prayer, idx) => {
-        let statusClass = '';
-        let statusText = '';
-        let rowClass = '';
-
-        if (prayer.name === 'الشروق') {
-            statusText = '';
-        } else if (idx === currentIdx) {
-            statusClass = 'active-status';
-            statusText = 'الآن';
-            rowClass = 'current';
-        } else if (idx === nextIdx) {
-            statusClass = 'next-status';
-            statusText = 'القادمة';
-            rowClass = 'next';
-        } else if (parseTime(prayer.time) < now) {
-            statusClass = 'passed-status';
-            statusText = 'مضى';
-            rowClass = 'passed';
-        }
-
-        // حساب الإقامة (تقريبي: الأذان + 15-30 دقيقة)
-        let iqamahText = '';
-        if (prayer.name !== 'الشروق') {
-            const time = parseTime(prayer.time);
-            const iqamah = new Date(time.getTime() + (prayer.name === 'المغرب' ? 15 : prayer.name === 'الفجر' ? 20 : 25) * 60000);
-            iqamahText = `${String(iqamah.getHours()).padStart(2,'0')}:${String(iqamah.getMinutes()).padStart(2,'0')}`;
-        }
-
-        return `
-            <div class="detailed-prayer-row ${rowClass}">
-                <div style="width:35px;text-align:center;"><i class="fa-solid ${prayer.icon}" style="color:${prayer.color};font-size:1.2rem;"></i></div>
-                <div class="prayer-row-name">${prayer.name}</div>
-                <div style="text-align:center;">
-                    <div class="prayer-row-time">${prayer.time}</div>
-                    ${iqamahText ? `<div style="font-size:0.7rem;color:var(--text-secondary);">إقامة: ${iqamahText}</div>` : ''}
-                </div>
-                ${statusText ? `<span class="prayer-row-status ${statusClass}">${statusText}</span>` : ''}
-            </div>`;
-    }).join('');
-
-    // معلومات إضافية
-    if (extraEl) {
-        extraEl.innerHTML = `
-            <div style="display:flex;justify-content:space-around;text-align:center;font-size:0.85rem;">
-                <div><i class="fa-solid fa-clock" style="color:#f59e0b;"></i><br><strong>منتصف الليل</strong><br>${calculateMidnight()}</div>
-                <div><i class="fa-solid fa-star" style="color:#8b5cf6;"></i><br><strong>الثلث الأخير</strong><br>${calculateLastThird()}</div>
-                <div><i class="fa-solid fa-clock-rotate-left" style="color:#06b6d4;"></i><br><strong>ساعة الإجابة</strong><br>بعد المغرب</div>
-            </div>`;
-    }
-}
-
-function calculateMidnight() {
-    const ptd = window._prayerTimesData;
-    if (!ptd) return '--:--';
-    const maghrib = parseTime(ptd.Maghrib);
-    const fajr = parseTime(ptd.Fajr);
-    const nextFajr = new Date(fajr.getTime() + 24 * 60 * 60 * 1000);
-    const diff = nextFajr - maghrib;
-    const midnight = new Date(maghrib.getTime() + diff / 2);
-    return `${String(midnight.getHours()).padStart(2,'0')}:${String(midnight.getMinutes()).padStart(2,'0')}`;
-}
-
-function calculateLastThird() {
-    const ptd = window._prayerTimesData;
-    if (!ptd) return '--:--';
-    const maghrib = parseTime(ptd.Maghrib);
-    const fajr = parseTime(ptd.Fajr);
-    const nextFajr = new Date(fajr.getTime() + 24 * 60 * 60 * 1000);
-    const diff = nextFajr - maghrib;
-    const lastThird = new Date(maghrib.getTime() + (diff * 2 / 3));
-    return `${String(lastThird.getHours()).padStart(2,'0')}:${String(lastThird.getMinutes()).padStart(2,'0')}`;
-}
-
-// جعل الأيقونات في كروت الصلوات تفتح المودال
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.prayer-timer').forEach(timer => {
-        timer.style.cursor = 'pointer';
-        timer.addEventListener('click', openDetailedPrayerModal);
-    });
-});
-
-
 // =========================================
 // العبادات الإضافية
 // =========================================
@@ -5185,9 +4636,7 @@ function toggleExtraWorship(el) {
 }
 
 // تحميل العبادات الإضافية عند بدء الصفحة
-document.addEventListener('DOMContentLoaded', () => {
-    loadExtraWorships();
-});
+
 
 
 // =========================================
@@ -5276,9 +4725,7 @@ function renderStreakDisplay() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderStreakDisplay();
-});
+
 
 
 // =========================================
@@ -5774,9 +5221,11 @@ function closeSalawatModal() {
 function incrementSalawat() {
     salawatSessionCount++;
     const circle = document.getElementById('salawat-counter-circle');
-    circle.classList.remove('pulse');
-    void circle.offsetWidth;
-    circle.classList.add('pulse');
+    if (circle) {
+        circle.classList.remove('pulse');
+        void circle.offsetWidth;
+        circle.classList.add('pulse');
+    }
     
     const data = loadSalawatData();
     document.getElementById('salawat-count').textContent = salawatSessionCount;
@@ -5809,7 +5258,8 @@ function saveSalawatSession() {
 }
 
 function updateSalawatUI(data) {
-    document.getElementById('salawat-total-display').textContent = data.total;
+    const totalEl = document.getElementById('salawat-total-display');
+    if (totalEl) totalEl.textContent = data.total;
     const lifetime = loadSalawatLifetime();
     const khatmahCount = Math.floor(lifetime / SALAWAT_KHATMAH);
     const statsEl = document.getElementById('salawat-stats');
@@ -6009,7 +5459,7 @@ function initAddWorshipModal() {
     if (ibadahBtn) ibadahBtn.addEventListener('click', () => {
         customAdhkarType = 'ibadah';
         ibadahBtn.style.background = '#10b981';
-        dhikrBtn.style.background = 'rgba(139,92,246,0.2)';
+        if (dhikrBtn) dhikrBtn.style.background = 'rgba(139,92,246,0.2)';
         document.getElementById('worship-name').placeholder = 'مثال: صلاة الضحى';
         document.getElementById('worship-time').placeholder = 'مثال: بعد الفجر';
     });
@@ -6017,7 +5467,7 @@ function initAddWorshipModal() {
     if (dhikrBtn) dhikrBtn.addEventListener('click', () => {
         customAdhkarType = 'dhikr';
         dhikrBtn.style.background = '#8b5cf6';
-        ibadahBtn.style.background = 'rgba(16,185,129,0.2)';
+        if (ibadahBtn) ibadahBtn.style.background = 'rgba(16,185,129,0.2)';
         document.getElementById('worship-name').placeholder = 'مثال: سبحان الله وبحمده 100 مرة';
         document.getElementById('worship-time').placeholder = 'مثال: في الصباح';
     });
@@ -6681,7 +6131,7 @@ function renderPointsDetail() {
     let customHtml = '';
     let customEarned = 0;
     let customMax = 0;
-    customData.items.forEach((item, i) => {
+    (customData.items || []).forEach((item, i) => {
         customMax += item.points || 0;
         if (item.done) customEarned += item.points || 0;
         
@@ -7440,89 +6890,3 @@ function dismissNightBanner() {
     const banner = document.querySelector('.night-mode-banner');
     if (banner) banner.style.display = 'none';
 }
-
-// =========================================
-// تحديث تهيئة DOMContentLoaded
-// =========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadFastingData();
-    updateFastingTodayStatus();
-    loadExtraWorships();
-    renderStreakDisplay();
-    renderGoalsPreview();
-    updateSunnahPreview();
-    startTimeTracker();
-    updateMembershipPreview();
-    initAddWorshipModal();
-    renderCustomAdhkar();
-    updateDSTDisplay();
-    renderDailyTodo();
-    renderSmartReminders();
-    setInterval(renderSmartReminders, 30 * 60 * 1000);
-    renderBadgesPreview();
-    initNightMode();
-
-    setInterval(() => {
-        const clockEl = document.getElementById('npb-clock');
-        if (clockEl) {
-            const now = getZeftaNow();
-            clockEl.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-        }
-        const ptd = window._prayerTimesData;
-        if (!ptd) return;
-        const now2 = getZeftaNow();
-        const times = {
-            fajr: parseTime(ptd.Fajr),
-            dhuhr: parseTime(ptd.Dhuhr),
-            asr: parseTime(ptd.Asr),
-            maghrib: parseTime(ptd.Maghrib),
-            isha: parseTime(ptd.Isha)
-        };
-        const P_NAMES = { fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' };
-        const banner = document.getElementById('next-prayer-banner');
-        const nameEl = document.getElementById('npb-prayer-name');
-        const countdownEl = document.getElementById('npb-countdown');
-        const timeEl = document.getElementById('npb-prayer-time');
-        if (!banner || !nameEl || !countdownEl) return;
-        let nextPr = null, nextPrDate = null;
-        for (const [key, date] of Object.entries(times)) {
-            let d = new Date(date);
-            if (key === 'fajr' && now2.getHours() > 12) d = new Date(d.getTime() + 86400000);
-            if (d > now2) { nextPr = key; nextPrDate = d; break; }
-        }
-        if (!nextPr) { nextPr = 'fajr'; nextPrDate = new Date(times.fajr.getTime() + 86400000); }
-        const diff = nextPrDate - now2;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        nameEl.textContent = P_NAMES[nextPr];
-        countdownEl.textContent = `متبقي: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        const tp = String(nextPrDate.getHours()).padStart(2,'0') + ':' + String(nextPrDate.getMinutes()).padStart(2,'0');
-        if (timeEl) timeEl.textContent = `وقت الصلاة: ${tp}`;
-        banner.classList.remove('prayer-passed', 'prayer-soon');
-        if (diff < 600000) banner.classList.add('prayer-soon');
-    }, 1000);
-
-    // إظهار مودال الإعدادات أول مرة إذا ما فيش بروفايل محفوظ
-    if (!userProfile.name) {
-        const setupModal = document.getElementById('setup-modal');
-        if (setupModal) setupModal.classList.remove('hidden');
-    }
-
-    // تحميل المواقيت افتراضياً لطنطا الغربية إذا لم يكن هناك موقع محفوظ
-    if (typeof userProfile !== 'undefined' && userProfile.latitude && userProfile.longitude) {
-        initPrayerTimes(userProfile.latitude, userProfile.longitude);
-    } else {
-        initPrayerTimes(30.7865, 31.0004);
-    }
-    
-    // Service Worker للوضع بدون إنترنت
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-            console.log('Service Worker registered for offline mode');
-        }).catch(err => {
-            console.log('SW registration skipped:', err.message);
-        });
-    }
-});

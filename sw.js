@@ -41,7 +41,6 @@ self.addEventListener('fetch', (event) => {
     // تخطي طلبات Firebase والـ APIs
     if (event.request.url.includes('firebase') || 
         event.request.url.includes('googleapis') ||
-        event.request.url.includes('aladhan.com') ||
         event.request.url.includes('gstatic.com') ||
         event.request.url.includes('unpkg.com') ||
         event.request.url.includes('cdn.jsdelivr.net') ||
