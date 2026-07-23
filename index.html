@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محاسبة النفس</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#10b981">
+  <meta name="description" content="تطبيق مجاني لمتابعة صلواتك الخمس، تسجيل أورادك اليومية، تنظيم وقتك، وتجديد نواياك من خلال إحصائيات دقيقة وتنبيهات ذكية للموبايل.">
+  
+  <meta name="keywords" content="محاسبة النفس, متابعة الصلوات, تطبيق إسلامي, أذكار الصباح والمساء, التقويم الهجري, ورد القرآن, قيام الليل, الخشوع في الصلاة">
+  
+  <meta name="robots" content="index, follow">
+  
+  <meta name="theme-color" content="#10b981">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <meta property="og:title" content="محاسبة النفس | رفيقك اليومي للعبادات">
+  <meta property="og:description" content="نظم وقتك، تابع صلواتك، وحافظ على أورادك اليومية مع تطبيق محاسبة النفس.">
+  <meta property="og:image" content="رابط_صورة_اللوجو_أو_بانر_للموقع.jpg"> <meta property="og:url" content="رابط_موقعك_هنا.com">
+  <meta property="og:type" content="website">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+  <div class="liquid-background">
+    <div class="blob-global blob-g-1"></div>
+    <div class="blob-global blob-g-2"></div>
+    <div class="blob-global blob-g-3"></div>
+  </div>
+
+  <div id="custom-bg-layer" class="custom-bg-layer hidden"></div>
+  
+  <header id="main-header">
+    <div class="container header-content">
+      <div class="logo">
+        <a href="#">
+          <img src="logo.png" alt="">
+        </a>
+      </div>
+
+      <div id="header-progress-container" class="header-progress-container">
+            <span id="header-progress-text">0%</span>
+            <div class="header-progress-bar-bg">
+                <div id="header-progress-fill" class="header-progress-fill"></div>
+            </div>
+            <button id="header-progress-info-btn" class="header-progress-info-btn" aria-label="كيف يتم احتساب التقدم؟">
+                <i class="fa-solid fa-circle-question"></i>
+            </button>
+            
+      </div>
+
+      <div class="header-actions">
+          <button id="mobile-menu-btn" class="mobile-menu-toggle">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+
+          <div id="action-icons" class="action-icons-wrapper">
+              
+              <button id="theme-toggle" aria-label="Toggle Dark Mode">
+                  <i class="fa-solid fa-moon"></i>
+              </button>
+
+              <button id="dhikr-counter-btn" class="settings-btn" aria-label="عداد الذكر" onclick="openDhikrCounter()">
+                  <i class="fa-solid fa-hand-holding-heart"></i>
+              </button>
+
+              <button id="analytics-btn" class="settings-btn" aria-label="الإحصائيات" onclick="scrollToAnalytics()">
+                  <i class="fa-solid fa-chart-pie"></i>
+              </button>
+
+              <div class="notification-wrapper" style="position: relative;">
+                  <button id="notification-btn" class="settings-btn" aria-label="Notifications">
+                      <i class="fa-solid fa-bell"></i>
+                      <span id="notif-badge" class="notification-badge hidden"></span>
+                  </button>
+                  <div id="notification-popup" class="notification-popup hidden">
+                      <div class="popup-header">
+                          <h4>تذكير بعبادة الغد</h4>
+                          <button id="close-notif" class="close-small">&times;</button>
+                      </div>
+                      <div class="popup-body" id="notif-content"></div>
+                  </div>
+              </div>
+
+              <button id="settings-btn" class="settings-btn" aria-label="Settings">
+                  <i class="fa-solid fa-gear"></i>
+              </button>
+
+              <div class="auth-container">
+                  <button id="login-btn" class="btn-primary">تسجيل الدخول</button>
+                  <div id="profile-icon" class="profile-icon hidden">
+                      <img src="" alt="Profile">
+                  </div>
+              </div>
+
+          </div>
+      </div>
+    </div>
+
+
+  </header>
+
+  <main>
+
+    <section id="bonus-section" class="container hidden" style="margin-top: 1rem; margin-bottom: 1rem;">
+        <div class="bonus-card" data-aos="fade-down">
+            <div class="bonus-icon">
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <div class="bonus-content">
+                <h3 id="bonus-title">عبادة خاصة اليوم</h3>
+                <p id="bonus-desc">وصف العبادة</p>
+            </div>
+            <button id="bonus-action-btn" class="task-btn bonus-btn" data-points="5">
+                تمت (5+ نقاط)
+            </button>
+        </div>
+    </section>
+
+    <section class="accountability-section">
+      <div class="container">
+        <h2 id="daily-verse" class="page-title"></h2>
+        <div class="date-toggle-container">
+  <button id="date-toggle-btn" class="date-toggle-btn">
+    <span id="current-date-display"></span>
+    <i class="fa-solid fa-chevron-down"></i>
+  </button>
+  
+  <div id="date-dropdown" class="date-dropdown hidden dual-calendar">
+    
+    <div class="calendar-section gregorian-section">
+      <div class="month-selector">
+        <button id="prev-month-g" class="month-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        <span id="current-month-display-g"></span>
+        <button id="next-month-g" class="month-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+      </div>
+      <div class="days-header">
+        <span>سبت</span><span>أحد</span><span>اثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span>
+      </div>
+      <div id="days-grid-g" class="days-grid"></div>
+    </div>
+
+    <div class="calendar-divider"></div>
+
+    <div class="calendar-section hijri-section">
+      <div class="month-selector">
+        <button id="prev-month-h" class="month-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        <span id="current-month-display-h"></span>
+        <button id="next-month-h" class="month-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+      </div>
+      <div class="days-header">
+        <span>سبت</span><span>أحد</span><span>اثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span>
+      </div>
+      <div id="days-grid-h" class="days-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+        <div class="global-progress-container" style="margin-top: 0.5rem;">
+          <div class="points-summary-bar" id="points-summary-bar" onclick="openPointsDetailModal()" style="cursor:pointer;">
+            <div class="points-summary-item" id="time-tracker-display">
+              <i class="fa-solid fa-clock" style="color: #3b82f6;"></i>
+              <span id="time-spent-value">00:00</span>
+              <span style="font-size:0.65rem;color:var(--text-secondary);">وقت</span>
+            </div>
+            <div class="points-summary-divider"></div>
+            <div class="points-summary-item">
+              <i class="fa-solid fa-coins" style="color: #f59e0b;"></i>
+              <span id="total-points-value">0</span>
+              <span style="font-size:0.65rem;color:var(--text-secondary);">نقطة</span>
+            </div>
+            <div class="points-summary-divider"></div>
+            <div class="points-summary-item">
+              <i class="fa-solid fa-bolt" style="color: #10b981;"></i>
+              <span id="streak-days-value">0</span>
+              <span style="font-size:0.65rem;color:var(--text-secondary);">يوم</span>
+            </div>
+            <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.7rem;color:var(--text-secondary);">تفاصيل <i class="fa-solid fa-chevron-left"></i></div>
+          </div>
+          <div class="progress-label">
+            <span>إنجاز اليوم</span>
+            <span id="total-score">0%</span>
+          </div>
+          <div class="progress-track">
+            <div id="global-progress-bar" class="progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+        <!-- Settings -->
+        <div id="setup-modal" class="modal-overlay hidden" style="z-index: 3000;">
+          <div class="liquid-modal">
+              <div class="modal-header">
+                  <h3>إعداد حسابك</h3>
+                  <button id="close-setup-modal" class="close-small" aria-label="إغلاق">&times;</button>
+              </div>
+              <div class="modal-body">
+                  <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">لنخصص التجربة لك، نحتاج لبعض البيانات.</p>
+
+                  <div class="form-group">
+                      <label>تخطيط الصفحة وشكل العرض</label>
+                      <div id="layout-mode-toggle" class="layout-mode-toggle" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+                          <button type="button" class="layout-mode-btn active" data-mode="classic">
+                              <i class="fa-solid fa-bars"></i> طولي (عادي)
+                          </button>
+                          <button type="button" class="layout-mode-btn" data-mode="sidebar">
+                              <i class="fa-solid fa-table-columns"></i> جانبي (عمودين)
+                          </button>
+                          <button type="button" class="layout-mode-btn" data-mode="grid">
+                              <i class="fa-solid fa-table-cells"></i> شبكي (Grid)
+                          </button>
+                      </div>
+                      <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                          اختر التخطيط الأنسب لشاشتك لمتابعة صلواتك وعباداتك براحة.
+                      </p>
+                  </div>
+                  <hr style="border-color: var(--glass-border); margin: 1.5rem 0;">
+
+                  <div class="form-group">
+                      <label>الاسم </label>
+                      <input type="text" id="setup-name" placeholder="الاسم الذي تود أن نناديك به">
+                  </div>
+
+                  <div class="form-group">
+                      <label>الجنس (لتخصيص الأحكام الفقهية)</label>
+                      <select id="setup-gender" class="glass-input">
+                          <option value="male">ذكر</option>
+                          <option value="female">أنثى</option>
+                      </select>
+                  </div>
+
+                  <div class="form-group">
+                      <label>الورد القرآني اليومي المستهدف</label>
+                      <input type="text" id="setup-quran-goal" placeholder="مثال: جزء، ربعين، صفحة...">
+                  </div>
+
+                  <div class="form-group">
+                      <label>الموقع الجغرافي (لمواقيت الصلاة)</label>
+                      <div style="display:flex; flex-direction:column; gap:8px;">
+                          <button id="get-location-btn" class="task-btn toggle-btn" style="width:100%; display:flex; gap:10px; justify-content:center; align-items:center;">
+                              <i class="fa-solid fa-location-dot"></i> تحديد موقعي تلقائياً (GPS)
+                          </button>
+                          <p style="font-size:0.75rem; color:var(--text-secondary); text-align:center;">— أو حدد يدوياً —</p>
+                          <div style="display:flex; gap:6px;">
+                              <input type="number" id="setup-lat" step="any" placeholder="خط العرض (lat)" class="glass-input" style="flex:1; font-size:0.85rem; padding:6px 10px;">
+                              <input type="number" id="setup-lng" step="any" placeholder="خط الطول (lng)" class="glass-input" style="flex:1; font-size:0.85rem; padding:6px 10px;">
+                          </div>
+                          <button type="button" id="save-location-btn" class="btn-primary" style="width:100%; padding:6px; font-size:0.85rem; background:#10b981;">
+                              <i class="fa-solid fa-check"></i> حفظ الموقع
+                          </button>
+                          <button type="button" id="set-zefta-btn" class="task-btn toggle-btn" style="width:100%; display:flex; gap:8px; justify-content:center; align-items:center; font-size:0.85rem; border-color:#f59e0b; color:#f59e0b;">
+                              <i class="fa-solid fa-map-marker-alt"></i> زفتى الغربية مصر (الإعداد السريع)
+                          </button>
+                      </div>
+                      <p id="location-status" style="font-size: 0.8rem; margin-top: 5px; color: var(--accent-color);"></p>
+                  </div>
+
+                  <div class="form-group">
+                    <label>مستواك الحالي (لضبط كمية الأذكار)</label>
+                    <select id="setup-level" class="glass-input">
+                        <option value="3">مجتهد (الورد الكامل - كل الأذكار)</option>
+                        <option value="2">متوسط (أهم الأذكار والسنن)</option>
+                        <option value="1">مبتدئ (التحصين الأساسي فقط)</option>
+                    </select>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                        يمكنك تغيير المستوى لاحقاً مع تطور همتك.
+                    </p>
+                </div>
+                  <hr style="border-color: var(--glass-border); margin: 1.5rem 0;">
+                  <h4 style="margin-bottom: 1rem; color: var(--accent-color);"><i class="fa-solid fa-palette"></i> المظهر والخلفية</h4>
+
+                  <div class="form-group">
+                      <label>الثيمات والألوان</label>
+                      <div class="theme-presets-container" id="theme-presets-container">
+                          <button type="button" class="theme-preset-btn active" data-theme-id="default" style="--bg:#f0f4f8; --b1:#4f46e5; --b2:#ec4899;">الافتراضي</button>
+                          <button type="button" class="theme-preset-btn" data-theme-id="mint" style="--bg:#022c22; --b1:#10b981; --b2:#34d399;">زمرد</button>
+                          <button type="button" class="theme-preset-btn" data-theme-id="space" style="--bg:#09090b; --b1:#6366f1; --b2:#8b5cf6;">فضاء</button>
+                      </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label>صورة الخلفية (اختياري)</label>
+                      <div class="bg-image-options">
+                          <button type="button" class="bg-img-btn active" data-img-path="none">بدون صورة</button>
+                          <button type="button" class="bg-img-btn" data-img-path="images/makkah.jpg">الحرم المكي</button>
+                          <button type="button" class="bg-img-btn" data-img-path="images/madinah.jpg">المسجد النبوي</button>
+                          <button type="button" class="bg-img-btn" data-img-path="images/aqsa.jpg">المسجد الأقصى</button>
+                          <!-- تم إزالة زر رفع الصورة من الجهاز -->
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                          <input type="checkbox" id="bg-blur-toggle" style="width: auto;">
+                          <label for="bg-blur-toggle" style="margin: 0; font-size: 0.9rem;">تفعيل ضبابية الصورة (Blur)</label>
+                      </div>
+                  </div>
+                  <hr style="border-color: var(--glass-border); margin: 1.5rem 0;">
+                  <h4 style="margin-bottom: 1rem; color: var(--accent-color);"><i class="fa-solid fa-bell"></i> مواعيد التنبيهات</h4>
+                  
+
+
+                  <div class="form-group">
+                      <label>وقت أذكار الصباح</label>
+                      <input type="time" id="setup-morning-time" class="glass-input">
+                  </div>
+
+                  <div class="form-group">
+                      <label>وقت أذكار المساء</label>
+                      <input type="time" id="setup-evening-time" class="glass-input">
+                  </div>
+
+                  <div class="form-group">
+                      <label>موعد التذكير بالورد القرآني</label>
+                      <input type="time" id="setup-wird-time" class="glass-input">
+                  </div>
+                  <div class="form-group" style="text-align: center; margin-top: 15px;">
+                      <button type="button" class="btn-primary" onclick="requestNotificationPermission()" style="width: 100%; background: #10b981;">
+                          <i class="fa-solid fa-bell"></i> تفعيل الإشعارات
+                      </button>
+                      <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 5px;">
+                          تنويه للآيفون: يجب إضافة الموقع للشاشة الرئيسية (Add to Home Screen) لتعمل الإشعارات.
+                      </p>
+                  </div>
+                  <hr style="border-color: var(--glass-border); margin: 1.5rem 0;">
+                  <h4 style="margin-bottom: 1rem; color: var(--accent-color);"><i class="fa-solid fa-clock"></i> التوقيت</h4>
+                  <div class="form-group">
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                          <div>
+                              <label style="margin: 0;">التوقيت الصيفي (+3)</label>
+                              <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 2px 0 0;">الوقت الحالي: <strong id="dst-current-time"></strong></p>
+                          </div>
+                          <label class="dst-toggle-switch">
+                              <input type="checkbox" id="dst-toggle" onchange="toggleDST(this.checked)">
+                              <span class="dst-toggle-slider"></span>
+                          </label>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button id="save-setup-btn" class="btn-primary" style="width: 100%;" onclick="closeSetupAndApply()"><i class="fa-solid fa-check"></i> تم</button>
+              </div>
+          </div>
+      </div>
+
+        <div id="main-layout-wrapper" class="main-layout-wrapper">
+          
+          <div id="app-main-column" class="main-column">
+            <div class="prayers-container" id="prayers-container-wrapper">
+
+              <div class="prayer-item" id="fajr-card" data-aos="fade-up">
+                <div class="prayer-header-wrapper">
+                  <span class="prayer-name">الفجر</span>
+                  <span class="prayer-timer" id="timer-fajr">--:--:--</span>
+                </div>
+                <div class="prayer-content-grid">
+                  <div class="task-box">
+                    <h4 class="box-title">الصلاة</h4>
+                    <button class="task-btn prayer-btn" data-type="mosque" data-points="3">صلاة في المسجد (3 نقاط)</button>
+                    <button class="task-btn prayer-btn" data-points="2">على الوقت في البيت (2 نقطة)</button>
+                    <button class="task-btn prayer-btn" data-points="1">تأخرت ولكن داخل وقتها (1 نقطة)</button>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار بعد الصلاة</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('post_fajr')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-post_fajr" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار الصباح</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('morning')">عرض الأذكار (2 نقطة)</button>
+                    <button class="task-btn toggle-btn" data-points="2">صلاة الضحى - 4 ركعات (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-morning" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">سنن الصلاة</h4>
+                    <button class="task-btn toggle-btn" data-points="2">سنة الفجر القبلية (2 نقطة)</button>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار الاستيقاظ</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('wakeup')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-wakeup" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <button class="add-prayer-extra-btn" data-prayer="fajr">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="prayer-item" id="dhuhr-card" data-aos="fade-up">
+                <div class="prayer-header-wrapper">
+                  <span class="prayer-name">الظهر</span>
+                  <span class="prayer-timer" id="timer-dhuhr">--:--:--</span>
+                </div>
+                <div class="prayer-content-grid">
+                  <div class="task-box">
+                    <h4 class="box-title">الصلاة</h4>
+                    <button class="task-btn prayer-btn" data-type="mosque" data-points="3">صلاة في المسجد (3 نقاط)</button>
+                    <button class="task-btn prayer-btn" data-points="2">على الوقت في البيت (2 نقطة)</button>
+                    <button class="task-btn prayer-btn" data-points="1">تأخرت ولكن داخل وقتها (1 نقطة)</button>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار بعد الصلاة</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('post_dhuhr')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-post_dhuhr" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">سنن الصلاة</h4>
+                    <button class="task-btn toggle-btn" data-points="2">سنة قبلية - 4 ركعات (2 نقطة)</button>
+                    <button class="task-btn toggle-btn" data-points="2">سنة بعدية - ركعتين (2 نقطة)</button>
+                  </div>
+                  <button class="add-prayer-extra-btn" data-prayer="dhuhr">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="prayer-item" id="asr-card" data-aos="fade-up">
+                <div class="prayer-header-wrapper">
+                  <span class="prayer-name">العصر</span>
+                  <span class="prayer-timer" id="timer-asr">--:--:--</span>
+                </div>            
+                <div class="prayer-content-grid">
+                  <div class="task-box">
+                    <h4 class="box-title">الصلاة</h4>
+                    <button class="task-btn prayer-btn" data-type="mosque" data-points="3">صلاة في المسجد (3 نقاط)</button>
+                    <button class="task-btn prayer-btn" data-points="2">على الوقت في البيت (2 نقطة)</button>
+                    <button class="task-btn prayer-btn" data-points="1">تأخرت ولكن داخل وقتها (1 نقطة)</button>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار بعد الصلاة</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('post_asr')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-post_asr" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار المساء</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('evening')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-evening" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <button class="add-prayer-extra-btn" data-prayer="asr">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="prayer-item" id="maghrib-card" data-aos="fade-up">
+                <div class="prayer-header-wrapper">
+                  <span class="prayer-name">المغرب</span>
+                  <span class="prayer-timer" id="timer-maghrib">--:--:--</span>
+                </div>  
+                <div class="prayer-content-grid">
+                  <div class="task-box">
+                    <h4 class="box-title">الصلاة</h4>
+                    <button class="task-btn prayer-btn" data-type="mosque" data-points="3">صلاة في المسجد (3 نقاط)</button>
+                    <button class="task-btn prayer-btn" data-points="2">على الوقت في البيت (2 نقطة)</button>
+                    <button class="task-btn prayer-btn" data-points="1">تأخرت ولكن داخل وقتها (1 نقطة)</button>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار بعد الصلاة</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('post_maghrib')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-post_maghrib" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">سنن الصلاة</h4>
+                    <button class="task-btn toggle-btn" data-points="2">سنة بعدية (2 نقطة)</button>
+                  </div>
+                  <button class="add-prayer-extra-btn" data-prayer="maghrib">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="prayer-item" id="isha-card" data-aos="fade-up">
+                <div class="prayer-header-wrapper">
+                  <span class="prayer-name">العشاء</span>
+                  <span class="prayer-timer" id="timer-isha">--:--:--</span>
+                </div>  
+                <div class="prayer-content-grid">
+                  <div class="task-box">
+                    <h4 class="box-title">الصلاة</h4>
+                    <button class="task-btn prayer-btn" data-type="mosque" data-points="3">صلاة في المسجد (3 نقاط)</button>
+                    <button class="task-btn prayer-btn" data-points="2">على الوقت في البيت (2 نقطة)</button>
+                    <button class="task-btn prayer-btn" data-points="1">تأخرت ولكن داخل وقتها (1 نقطة)</button>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">أذكار بعد الصلاة</h4>
+                    <button class="task-btn action-btn" onclick="openAdhkar('post_isha')">عرض الأذكار (2 نقطة)</button>
+                    <div class="adhkar-progress-track">
+                      <div class="adhkar-progress-fill" id="progress-post_isha" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="task-box">
+                    <h4 class="box-title">سنن الصلاة</h4>
+                    <button class="task-btn toggle-btn" data-points="2">سنة بعدية (2 نقطة)</button>
+                  </div>
+                  <button class="add-prayer-extra-btn" data-prayer="isha">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div id="app-sidebar-column" class="sidebar-column">
+            
+            <div class="prayer-item" id="ibadat-card-sidebar" data-aos="fade-up">
+              <span class="prayer-name">ركن العبادات</span>
+              <div class="prayer-content-grid">
+                <div class="task-box full-width-box" style="width: 100%;">
+                  <h4 class="box-title">نوافل ومهام</h4>
+                  <div class="ibadat-grid" id="ibadat-grid">
+                    <div class="ibada-box" data-id="qiyam" data-points="4">
+                      <h3 class="ibada-title">قيام الليل (4 نقاط)</h3>
+                      <div class="ibada-status"></div>
+                    </div>
+                    <div class="ibada-box" data-id="witr" data-points="2">
+                      <h3 class="ibada-title">ركعة الوتر (2 نقطة)</h3>
+                      <div class="ibada-status"></div>
+                    </div>
+                    <div class="ibada-box" data-id="quran" data-points="4">
+                      <h3 class="ibada-title">ورد القرآن (4 نقاط)</h3>
+                      <div class="ibada-status"></div>
+                    </div>
+                    <button id="add-worship-btn" class="add-worship-btn">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </div>
+                  <div style="margin-top: 12px;">
+                    <h4 class="box-title" style="font-size: 0.95rem; margin-bottom: 8px; color: #8b5cf6;"><i class="fa-solid fa-spell-check"></i> أذكار ونوافل مخصصة</h4>
+                    <div id="custom-dhikr-list"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="knowledge-card-sidebar" data-aos="fade-up">
+              <div class="prayer-header-wrapper" style="flex-direction: column; text-align: center; border-bottom: none; gap: 8px; margin-bottom: 1rem;">
+                <span class="prayer-name" style="color: #8b5cf6; border: none; margin: 0; font-size: 1.4rem;">بصائر الإيمان</span>
+                <p style="color: var(--text-secondary); font-size: 0.85rem;">تخلص من المهلكات، وافهم حقيقة العبادات</p>
+              </div>
+
+              <div style="background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.2); margin-bottom: 1.5rem;">
+                <h4 class="box-title" style="color: #ef4444; margin-bottom: 0.75rem; font-size: 1.19rem;"><i class="fa-solid fa-triangle-exclamation"></i> احذر المهلكات</h4>
+                <div class="warning-grid" style="grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                  <div class="warning-box" onclick="openWarning('lying')" style="padding: 1rem 0.5rem; gap: 0.5rem;">
+                    <i class="fa-solid fa-comment-slash warning-icon" style="font-size: 1.5rem;"></i>
+                    <h3 class="warning-title" style="font-size: 0.85rem;">الكذب</h3>
+                  </div>
+                  <div class="warning-box" onclick="openWarning('backbiting')" style="padding: 1rem 0.5rem; gap: 0.5rem;">
+                    <i class="fa-solid fa-users-slash warning-icon" style="font-size: 1.5rem;"></i>
+                    <h3 class="warning-title" style="font-size: 0.85rem;">الغيبة</h3>
+                  </div>
+                  <div class="warning-box" onclick="openWarning('gazing')" style="padding: 1rem 0.5rem; gap: 0.5rem;">
+                    <i class="fa-solid fa-eye-slash warning-icon" style="font-size: 1.5rem;"></i>
+                    <h3 class="warning-title" style="font-size: 0.85rem;">إطلاق البصر</h3>
+                  </div>
+                  <div class="warning-box" onclick="openWarning('cursing')" style="padding: 1rem 0.5rem; gap: 0.5rem;">
+                    <i class="fa-solid fa-face-angry warning-icon" style="font-size: 1.5rem;"></i>
+                    <h3 class="warning-title" style="font-size: 0.85rem;">السب واللعن</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div id="niyyat-section-container" style="background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 0.75rem; border: 1px solid rgba(16, 185, 129, 0.2);">
+
+              </div>
+            </div>
+
+            <div class="prayer-item" id="reflection-card-sidebar" data-aos="fade-up">
+              <div class="reflection-header">
+                <h3 id="reflection-title" class="box-title" style="font-size: 1.2rem; margin-bottom: 0.5rem;">ما سبب التقصير اليوم؟</h3>
+                <p class="reflection-hint" style="font-size: 0.8rem; margin-bottom: 1rem;">
+                  الهدف ليس جلد ذاتك، بل الفهم. دوّن هنا لتتجنب المعوقات وتكرر الإيجابيات.
+                </p>
+              </div>
+              <textarea id="reflection-input" class="glass-textarea" style="min-height: 100px; font-size: 0.9rem;" placeholder="اكتب خواطرك هنا..."></textarea>
+              <button id="download-report-btn" class="btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.75rem;">
+                <i class="fa-solid fa-file-word"></i> تنزيل تقرير يومك
+              </button>
+            </div>
+
+            <div class="prayer-item" id="streak-card-sidebar" data-aos="fade-up" style="border-color: #f59e0b;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #f59e0b; border:none;"><i class="fa-solid fa-fire"></i> سلسلة الإتقان</span>
+              </div>
+              <div id="streak-display" style="text-align: center; padding: 1rem 0;">
+                <div id="streak-number" style="font-size: 3rem; font-weight: 800; color: #f59e0b; line-height: 1;">0</div>
+                <div id="streak-label" style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px;">أيام متتالية</div>
+                <div id="streak-best" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px;"></div>
+                <div id="streak-badges" style="display: flex; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;"></div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="daily-todo-card-sidebar" data-aos="fade-up" style="border-color: #6366f1;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #6366f1; border:none;"><i class="fa-solid fa-list-check"></i> مهام اليوم</span>
+              </div>
+              <div id="daily-todo-container">
+                <div id="daily-todo-progress" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 10px; background: rgba(99,102,241,0.1); border-radius: 10px;">
+                  <div style="flex: 1; height: 6px; background: rgba(99,102,241,0.15); border-radius: 3px; overflow: hidden;">
+                    <div id="daily-todo-bar" style="height: 100%; width: 0%; background: #6366f1; border-radius: 3px; transition: width 0.4s;"></div>
+                  </div>
+                  <span id="daily-todo-count" style="font-size: 0.8rem; color: #6366f1; font-weight: 700; white-space: nowrap;">0/0</span>
+                </div>
+                <div id="daily-todo-list" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                <div id="daily-todo-done-msg" style="display: none; text-align: center; padding: 10px; color: #10b981; font-weight: 700;">
+                  <i class="fa-solid fa-circle-check"></i> أحسنت! كل المهام اكتملت
+                </div>
+              </div>
+            </div>
+
+            <div id="smart-reminder-card" class="prayer-item" data-aos="fade-up" style="border-color: #f97316; display: none;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #f97316; border:none;"><i class="fa-solid fa-bell"></i> تنبيهات ذكية</span>
+              </div>
+              <div id="smart-reminder-list" style="display: flex; flex-direction: column; gap: 6px; padding: 0 4px;"></div>
+            </div>
+
+            <div class="prayer-item" id="fasting-card-sidebar" data-aos="fade-up" style="border-color: #06b6d4;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openFastingCalendar()">
+                <span class="prayer-name" style="color: #06b6d4; border:none;"><i class="fa-solid fa-calendar-days"></i> تقويم الصيام</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="fasting-today-status" style="text-align: center; padding: 0.5rem 0;">
+                <div id="fasting-today-text" style="font-size: 0.9rem; color: var(--text-secondary);"></div>
+                <button id="fasting-today-btn" class="task-btn toggle-btn" style="margin-top: 8px; width: 100%;" onclick="event.stopPropagation(); toggleFastingToday()">صمت اليوم</button>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="membership-card-sidebar" data-aos="fade-up" style="border-color: #d97706; cursor: pointer;" onclick="openMembershipModal()">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #d97706; border:none;"><i class="fa-solid fa-crown"></i> رتبتك</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="membership-preview" style="text-align: center; padding: 0.5rem 0;">
+                <div id="membership-rank-icon" style="font-size: 2.5rem; line-height: 1;">🌿</div>
+                <div id="membership-rank-name" style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-top: 4px;">مبتدئ</div>
+                <div id="membership-progress-text" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">0 / 100 نقطة للرتبة التالية</div>
+                <div style="width: 100%; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.1); margin-top: 6px; overflow: hidden;">
+                  <div id="membership-progress-bar" style="height: 100%; border-radius: 3px; background: #d97706; width: 0%; transition: width 0.5s;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="extra-worships-card-sidebar" data-aos="fade-up" style="border-color: #8b5cf6;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem;">
+                <span class="prayer-name" style="color: #8b5cf6; border:none;"><i class="fa-solid fa-plus-circle"></i> عبادات إضافية</span>
+              </div>
+              <div class="ibadat-grid" id="extra-worships-grid">
+                <div class="ibada-box extra-worship-item" data-id="charity" data-points="2" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">صدقة يومية</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="istighfar" data-points="2" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">استغفار (100)</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="salawat" data-points="2" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">صلاة على النبي ﷺ</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="visiting" data-points="3" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">زيارة مريض</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="parents" data-points="3" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">بر الوالدين</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="relatives" data-points="2" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">صلة الرحم</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="feeding" data-points="3" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">إطعام مسلم</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="seerah" data-points="2" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">قراءة سيرة</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="hadith" data-points="2" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">حفظ حديث</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box extra-worship-item" data-id="dua_others" data-points="1" onclick="toggleExtraWorship(this)">
+                  <h3 class="ibada-title">دعاء للآخرين</h3>
+                  <div class="ibada-status"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="goals-card-sidebar" data-aos="fade-up" style="border-color: #10b981;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openGoalsModal()">
+                <span class="prayer-name" style="color: #10b981; border:none;"><i class="fa-solid fa-bullseye"></i> أهدافي الشهرية</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="goals-preview"></div>
+            </div>
+
+            <div class="prayer-item" id="assistant-card-sidebar" data-aos="fade-up" style="border-color: #ec4899;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openAssistantModal()">
+                <span class="prayer-name" style="color: #ec4899; border:none;"><i class="fa-solid fa-robot"></i> المساعد الروحاني</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="assistant-preview" style="text-align: center; padding: 0.5rem 0; font-size: 0.85rem; color: var(--text-secondary);">
+                اضغط للحصول على نصيحة مخصصة لك
+              </div>
+            </div>
+
+            <div class="prayer-item" id="sunnah-card-sidebar" data-aos="fade-up" style="border-color: #eab308;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openSunnahModal()">
+                <span class="prayer-name" style="color: #eab308; border:none;"><i class="fa-solid fa-sun"></i> إحياء السُّنة</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="sunnah-preview" style="text-align: center; padding: 0.5rem 0;">
+                <div id="sunnah-today-count" style="font-size: 1.5rem; font-weight: 800; color: #eab308;">0/5</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">سنن مُستحبة اليوم</div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="salawat-card-sidebar" data-aos="fade-up" style="border-color: #a855f7;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openSalawatModal()">
+                <span class="prayer-name" style="color: #a855f7; border:none;"><i class="fa-solid fa-star-and-crescent"></i> الصلاة على النبي ﷺ</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div style="text-align: center; padding: 0.5rem 0;">
+                <div id="salawat-total-display" style="font-size: 1.5rem; font-weight: 800; color: #a855f7;">0</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">صلاة على النبي ﷺ</div>
+              </div>
+            </div>
+
+            <div class="prayer-item" id="hisn-card-sidebar" data-aos="fade-up" style="border-color: #14b8a6;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openHisnModal()">
+                <span class="prayer-name" style="color: #14b8a6; border:none;"><i class="fa-solid fa-shield-halved"></i> حصن المسلم</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div style="text-align: center; padding: 0.5rem 0; font-size: 0.85rem; color: var(--text-secondary);">
+                أدعية مصنفة حسب الحالة
+              </div>
+            </div>
+
+            <div class="prayer-item" id="stats-card-sidebar" data-aos="fade-up" style="border-color: #f472b6;">
+              <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 0.5rem; cursor: pointer;" onclick="openStatsModal()">
+                <span class="prayer-name" style="color: #f472b6; border:none;"><i class="fa-solid fa-chart-simple"></i> إحصائياتي</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+              </div>
+              <div id="stats-preview" style="text-align: center; padding: 0.5rem 0;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">اضغط لعرض مقارنة أداءك</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- <section class="ibadat-section" data-aos="fade-up">
+      <div class="container">
+        <div class="prayer-item">
+          <span class="prayer-name">ركن العبادات</span>
+          <div class="prayer-content-grid">
+            <div class="task-box full-width-box">
+              <h4 class="box-title">نوافل ومهام</h4>
+              <div class="ibadat-grid" id="ibadat-grid">
+                <div class="ibada-box" data-id="qiyam" data-points="4">
+                  <h3 class="ibada-title">قيام الليل (4 نقاط)</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box" data-id="witr" data-points="2">
+                  <h3 class="ibada-title">ركعة الوتر (2 نقطة)</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <div class="ibada-box" data-id="quran" data-points="4">
+                  <h3 class="ibada-title">ورد القرآن - ربعين (4 نقاط)</h3>
+                  <div class="ibada-status"></div>
+                </div>
+                <button id="add-worship-btn" class="add-worship-btn">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+  </main>
+
+  <div id="add-worship-modal" class="modal-overlay hidden">
+    <div class="liquid-modal">
+      <div class="modal-header">
+        <h3>إضافة عبادة / ذكر جديد</h3>
+        <button id="close-worship-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>نوع الإضافة</label>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button id="add-type-ibadah" class="btn-primary" style="flex:1; background:#10b981; padding:8px;">عبادة / نافلة</button>
+            <button id="add-type-dhikr" class="btn-primary" style="flex:1; background:#8b5cf6; padding:8px;">ذكر مخصص</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="worship-name">الاسم / نص الذكر</label>
+          <input type="text" id="worship-name" placeholder="مثال: صلاة الضحى / سبحان الله وبحمده">
+        </div>
+        <div class="form-group">
+          <label for="worship-time">الوقت / ملاحظة (اختياري)</label>
+          <input type="text" id="worship-time" placeholder="مثال: بعد الفجر / 100 مرة">
+        </div>
+        <div class="form-group">
+          <label for="worship-points">عدد النقاط</label>
+          <select id="worship-points" class="glass-input">
+            <option value="1">1 نقطة</option>
+            <option value="2">2 نقطة</option>
+            <option value="3">3 نقاط</option>
+            <option value="4">4 نقاط</option>
+            <option value="5">5 نقاط</option>
+            <option value="6">6 نقاط</option>
+            <option value="7">7 نقاط</option>
+            <option value="8">8 نقاط</option>
+            <option value="10">10 نقاط</option>
+            <option value="15">15 نقطة</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save-worship-btn" class="btn-primary">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="adhkar-modal" class="adhkar-modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">الأذكار</h3>
+        <button id="close-modal" class="close-btn">&times;</button>
+      </div>
+      <div id="adhkar-list" class="adhkar-list no-scrollbar"></div>
+      <div class="modal-footer">
+        <button id="complete-adhkar-btn" class="btn-primary">إتمام</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="extra-prayer-modal" class="modal-overlay hidden">
+    <div class="liquid-modal">
+      <div class="modal-header">
+        <h3>إضافة نافلة</h3>
+        <button id="close-extra-modal" class="close-btn">&times;</button>
+      </div>
+      <div id="extra-worship-list" class="adhkar-list no-scrollbar"></div>
+      <hr style="border-color: var(--glass-border); margin: 10px 0;">
+      <div style="padding: 10px;">
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;"><i class="fa-solid fa-pen"></i> أو أضف نافلة مخصصة:</p>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <input type="text" id="custom-nawafil-name" placeholder="اسم النافلة" class="glass-input" style="flex:1; font-size:0.85rem; padding: 6px 10px;">
+          <input type="number" id="custom-nawafil-points" placeholder="نقاط" min="1" max="10" value="2" class="glass-input" style="width:60px; font-size:0.85rem; padding: 6px 10px; text-align:center;">
+          <button id="add-custom-nawafil-btn" class="btn-primary" style="padding: 6px 14px; font-size: 0.85rem; white-space:nowrap;">إضافة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div id="warning-modal" class="modal-overlay hidden">
+    <div class="liquid-modal warning-modal-content">
+        <div class="modal-header">
+            <h3 id="warning-modal-title" style="color: #ef4444;">عنوان التحذير</h3>
+            <button id="close-warning-modal" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-body warning-body">
+            
+            <div class="definition-box">
+                <h4 class="mini-title"><i class="fa-solid fa-circle-info"></i> المفهوم:</h4>
+                <p id="warning-def">هنا يظهر التعريف...</p>
+            </div>
+
+            <div class="daily-example-box">
+                <h4 class="mini-title"><i class="fa-solid fa-calendar-day"></i> مثال من واقعنا (يومي):</h4>
+                <p id="warning-daily-example">هنا يظهر المثال اليومي...</p>
+            </div>
+
+            <div class="quran-quote">
+                <i class="fa-solid fa-book"></i>
+                <p id="warning-quran"></p>
+            </div>
+            <div class="hadith-quote">
+                <i class="fa-solid fa-scroll"></i>
+                <p id="warning-hadith"></p>
+            </div>
+
+            <div class="story-section">
+                <button id="btn-show-story" class="btn-primary story-btn">
+                    <i class="fa-solid fa-book-open"></i> اقرأ قصة من السيرة
+                </button>
+                <div id="warning-story-content" class="story-content hidden">
+                    <p id="story-text"></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+  
+  <section id="analytics-section" class="accountability-section" data-aos="fade-up">
+    <div class="container">
+      <div class="prayer-item" style="border-color: var(--accent-color);">
+        
+        <div class="prayer-header-wrapper" style="border-bottom: none; margin-bottom: 1rem; flex-direction: column; gap: 15px;">
+          <span class="prayer-name" style="color: var(--accent-color); border:none;">حصادك الإيماني</span>
+          
+          <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('main')">الرئيسية</button>
+            <button class="tab-btn" onclick="switchTab('daily')">التفاصيل اليومية</button>
+            <button class="tab-btn" onclick="switchTab('weekly')">أرشيف الأسابيع</button>
+            <button class="tab-btn" onclick="switchTab('monthly')">أرشيف الشهور</button>
+          </div>
+        </div>
+
+        <div id="tab-main" class="tab-content active">
+          <div class="toggle-container" style="background: rgba(0,0,0,0.1); padding: 5px; border-radius: 20px; width: fit-content; margin: 0 auto 20px;">
+            <button class="filter-btn active" onclick="updateCharts('week')">أسبوعي</button>
+            <button class="filter-btn" onclick="updateCharts('month')">شهري</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fa-solid fa-trophy"></i></div>
+              <div class="stat-info">
+                <h4>نسبة الإنجاز</h4>
+                <span id="period-score">0%</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fa-solid fa-fire"></i></div>
+              <div class="stat-info">
+                <h4>أفضل يوم</h4>
+                <span id="best-day">--</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
+              <div class="stat-info">
+                <h4>أيام الالتزام التام</h4>
+                <span id="perfect-days">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-container">
+            <div class="chart-box">
+              <h4><i class="fa-solid fa-arrow-trend-up"></i> تطور أدائك</h4>
+              <canvas id="progressChart"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4><i class="fa-solid fa-scale-balanced"></i> توزيع العبادات</h4>
+              <canvas id="distributionChart"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-grid">
+            <div class="analysis-box strength">
+              <h4><i class="fa-solid fa-thumbs-up"></i> أكثر ما حافظت عليه</h4>
+              <ul id="top-habits-list"><li>جاري التحليل...</li></ul>
+            </div>
+            <div class="analysis-box weakness">
+              <h4><i class="fa-solid fa-triangle-exclamation"></i> يحتاج لتركيز أكبر</h4>
+              <ul id="low-habits-list"><li>جاري التحليل...</li></ul>
+            </div>
+          </div>
+          
+           <div style="display: flex; gap: 10px; margin-top: 2rem;">
+              <button onclick="downloadReport('week')" class="btn-primary" style="flex: 1; background: #4f46e5;">
+                  <i class="fa-solid fa-file-pdf"></i>  تحميل التقرير أسبوعي 
+              </button>
+              <button onclick="downloadReport('month')" class="btn-primary" style="flex: 1; background: #0891b2;">
+                  <i class="fa-solid fa-file-contract"></i> تحميل التقرير شهري
+              </button>
+          </div>
+        </div>
+
+        <div id="tab-daily" class="tab-content">
+          <div class="chart-box" style="height: auto; min-height: auto;">
+            <h4><i class="fa-solid fa-table-list"></i> سجل الأيام (مرتب من الأحدث)</h4>
+            <div class="table-responsive">
+              <table class="analytics-table">
+                <thead>
+                  <tr>
+                    <th>التاريخ</th>
+                    <th>اليوم</th>
+                    <th>الإنجاز العام</th>
+                    <th>الصلوات</th>
+                    <th>القرآن</th>
+                    <th>الأذكار</th>
+                    <th>السنن</th>
+                    <th>القيام</th>
+                  </tr>
+                </thead>
+                <tbody id="analytics-table-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-weekly" class="tab-content">
+          <div class="chart-box auto-height">
+            <h4><i class="fa-solid fa-calendar-week"></i> أرشيف الأسابيع (من الجمعة للخميس)</h4>
+            <div class="table-responsive">
+              <table class="analytics-table">
+                <thead>
+                  <tr>
+                    <th>الأسبوع</th>
+                    <th>الفترة</th>
+                    <th>متوسط الإنجاز</th>
+                    <th>التقييم</th>
+                  </tr>
+                </thead>
+                <tbody id="weekly-archive-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-monthly" class="tab-content">
+          <div class="chart-box auto-height">
+            <h4><i class="fa-solid fa-calendar-days"></i> أرشيف الشهور</h4>
+            <div class="table-responsive">
+              <table class="analytics-table">
+                <thead>
+                  <tr>
+                    <th>الشهر</th>
+                    <th>متوسط الإنجاز</th>
+                    <th>التقييم</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-archive-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-wrapper">
+    <footer class="container glass-footer">
+      <div class="footer-brand">
+        <h3><img src="logo.png" alt="Logo"></h3>
+        <p>صنعت لوجه الله تعالى بواسطة احمد الدابي، نسألكم الدعاء بالقبول والرحمه والمغفره والستر</p>
+      </div>
+      <div class="social-links">
+        <a href="https://www.facebook.com/AhmedM2026/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="-" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="-" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+    </footer>
+  </div>
+
+  <div id="report-template-container" style="position: absolute; left: -9999px; top: 0; width: 800px;">
+  <div id="pdf-content" class="pdf-page">
+    
+    <div class="pdf-header">
+      <div class="header-logo">
+        <img src="logo.png" alt="Logo" style="height: 60px;"> </div>
+      <div class="header-info">
+        <h1 class="pdf-title">تقرير حصاد الأعمال</h1>
+        <p class="pdf-subtitle" id="pdf-period-text">تقرير أسبوعي | من ... إلى ...</p>
+      </div>
+      <div class="header-score">
+        <span>الإنجاز العام</span>
+        <div class="score-circle" id="pdf-total-score">0%</div>
+      </div>
+    </div>
+
+    <div class="pdf-summary-grid">
+      <div class="summary-card">
+        <span class="label">أيام الالتزام</span>
+        <span class="value" id="pdf-perfect-days">0</span>
+      </div>
+      <div class="summary-card">
+        <span class="label">أفضل يوم</span>
+        <span class="value" id="pdf-best-day">-</span>
+      </div>
+      <div class="summary-card">
+        <span class="label">معدل الصلوات</span>
+        <span class="value" id="pdf-prayer-avg">0%</span>
+      </div>
+      <div class="summary-card">
+        <span class="label">معدل القرآن</span>
+        <span class="value" id="pdf-quran-avg">0%</span>
+      </div>
+    </div>
+
+    <div class="pdf-charts-section">
+      <h3><i class="fa-solid fa-chart-pie"></i> نظرة عامة بيانية</h3>
+      <div class="charts-wrapper">
+        <img id="pdf-chart-line" class="pdf-chart-img" />
+        <img id="pdf-chart-radar" class="pdf-chart-img" />
+      </div>
+    </div>
+
+    <div class="pdf-details-section">
+      <h3><i class="fa-solid fa-list-check"></i> تفاصيل الأيام</h3>
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th width="15%">التاريخ</th>
+            <th width="10%">اليوم</th>
+            <th width="10%">النسبة</th>
+            <th width="40%">أبرز الإنجازات</th>
+            <th width="25%">ملاحظات / تقصير</th>
+          </tr>
+        </thead>
+        <tbody id="pdf-daily-rows">
+          </tbody>
+      </table>
+    </div>
+
+    <div class="pdf-footer">
+      <p>تم استخراج هذا التقرير من منصة "محاسبة النفس" - اللهم اجعل أعمالنا خالصة لوجهك الكريم.</p>
+      <p id="pdf-generated-date"></p>
+    </div>
+
+  </div>
+</div>
+
+<div id="smart-report-modal" class="modal-overlay hidden" style="z-index: 9999;">
+  <div class="liquid-modal" style="max-width: 400px; text-align: center;">
+    <div class="modal-header" style="justify-content: center; flex-direction: column;">
+      <div id="smart-icon" style="font-size: 3rem; margin-bottom: 10px;">📊</div>
+      <h3 id="smart-title" style="margin: 0;">تقريرك اليومي</h3>
+    </div>
+    
+    <div class="modal-body">
+      <p id="smart-message" style="font-size: 1.1rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 15px;">
+        جاري تحليل أدائك...
+      </p>
+      
+      <div id="smart-details" style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; font-size: 0.9rem; text-align: right;">
+        </div>
+    </div>
+
+    <div class="modal-footer">
+      <button onclick="document.getElementById('smart-report-modal').classList.add('hidden')" class="btn-primary" style="width: 100%;">
+        استعن بالله وأكمل
+      </button>
+    </div>
+  </div>
+</div>
+<div id="concept-modal" class="modal-overlay hidden">
+  <div class="liquid-modal" style="max-width: 500px; width: 90%;">
+    <div class="modal-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+      <h3 id="concept-modal-title" style="margin: 0; display: flex; align-items: center; gap: 10px; color: var(--text-primary);">
+        <i class="fa-solid fa-lightbulb" style="color: #10b981;"></i> 
+        <span>العنوان</span>
+      </h3>
+      <button class="close-btn" onclick="closeConceptModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="modal-body" style="padding-top: 15px; text-align: right;">
+      <p id="concept-modal-text" style="font-size: 0.95rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 15px;"></p>
+      
+      <div id="concept-modal-video" class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; border: 1px solid var(--glass-border);">
+        </div>
+    </div>
+  </div>
+</div>
+
+  <div id="header-progress-info-popup" class="modal-overlay hidden" style="z-index: 99999;">
+  <div class="liquid-modal" style="max-width: 400px; width: 90%;">
+    <div class="modal-header" style="border-bottom: 1px dashed var(--glass-border); padding-bottom: 10px;">
+      <h3 style="color: var(--accent-color); font-size: 1.1rem; margin: 0;">
+        <i class="fa-solid fa-chart-pie"></i> كيف يُحتسب تقدم اليوم؟
+      </h3>
+      <button id="close-header-progress-info" class="close-btn">&times;</button>
+    </div>
+    <div class="modal-body" id="header-progress-info-content" style="padding-top: 15px;">
+      </div>
+  </div>
+</div>
+
+
+  <!-- مودال عداد الذكر الذكي -->
+  <div id="dhikr-counter-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 420px; width: 92%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-hand-holding-heart" style="color: #8b5cf6;"></i> عداد الذكر</h3>
+        <button class="close-btn" onclick="closeDhikrCounter()">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div id="dhikr-preset-name" style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 5px;">سبحان الله</div>
+        <div id="dhikr-counter-circle" onclick="incrementDhikrCounter()" style="width: 180px; height: 180px; border-radius: 50%; border: 4px solid #8b5cf6; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 15px; cursor: pointer; user-select: none; background: rgba(139, 92, 246, 0.05); transition: transform 0.1s;">
+          <span id="dhikr-count" style="font-size: 3.5rem; font-weight: 800; color: #8b5cf6; line-height: 1;">0</span>
+          <span id="dhikr-target" style="font-size: 0.9rem; color: var(--text-secondary);">الهدف: 33</span>
+        </div>
+        <div id="dhikr-presets" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px;"></div>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <input type="text" id="dhikr-custom-input" placeholder="ذكر مخصص..." style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--prayer-bg); color: var(--text-primary); font-family: 'Tajawal'; font-size: 0.9rem;">
+          <button onclick="addCustomDhikr()" class="btn-primary" style="padding: 8px 15px; font-size: 0.85rem;">إضافة</button>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="resetDhikrCounter()" class="btn-primary" style="flex: 1; background: #ef4444; padding: 8px; font-size: 0.85rem;"><i class="fa-solid fa-rotate-left"></i> إعادة</button>
+          <button onclick="saveDhikrSession()" class="btn-primary" style="flex: 1; background: #10b981; padding: 8px; font-size: 0.85rem;"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+        </div>
+        <div id="dhikr-stats" style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 10px; font-size: 0.85rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال تقويم الصيام -->
+  <div id="fasting-calendar-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-calendar-days" style="color: #06b6d4;"></i> تقويم الصيام</h3>
+        <button class="close-btn" onclick="closeFastingCalendar()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="fasting-stats-row" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 80px; text-align: center; padding: 10px; background: rgba(6,182,212,0.1); border-radius: 10px;">
+            <div id="fasting-month-count" style="font-size: 1.8rem; font-weight: 800; color: #06b6d4;">0</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">أيام هذا الشهر</div>
+          </div>
+          <div style="flex: 1; min-width: 80px; text-align: center; padding: 10px; background: rgba(245,158,11,0.1); border-radius: 10px;">
+            <div id="fasting-total-count" style="font-size: 1.8rem; font-weight: 800; color: #f59e0b;">0</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">إجمالي الأيام</div>
+          </div>
+          <div style="flex: 1; min-width: 80px; text-align: center; padding: 10px; background: rgba(16,185,129,0.1); border-radius: 10px;">
+            <div id="fasting-streak-count" style="font-size: 1.8rem; font-weight: 800; color: #10b981;">0</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">سلسلة متتالية</div>
+          </div>
+        </div>
+        <div id="fasting-calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 15px;"></div>
+        <div style="display: flex; gap: 15px; justify-content: center; font-size: 0.8rem; color: var(--text-secondary);">
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#06b6d4;vertical-align:middle;margin-left:4px;"></span> أيام بيض</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#8b5cf6;vertical-align:middle;margin-left:4px;"></span> الإثنين/الخميس</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#10b981;vertical-align:middle;margin-left:4px;"></span> صائم</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#ef4444;vertical-align:middle;margin-left:4px;"></span> لم أصم</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال أوقات الصلاة المفصلة -->
+  <div id="detailed-prayer-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-mosque" style="color: #10b981;"></i> مواقيت الصلاة</h3>
+        <button class="close-btn" onclick="closeDetailedPrayerModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="detailed-prayer-list"></div>
+        <div id="detailed-prayer-extra" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال المساعد الروحاني -->
+  <div id="assistant-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 450px; width: 95%; max-height: 80vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-robot" style="color: #ec4899;"></i> المساعد الروحاني</h3>
+        <button class="close-btn" onclick="closeAssistantModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; min-height: 250px;" id="assistant-messages"></div>
+      <div style="padding: 10px; border-top: 1px solid var(--glass-border);">
+        <div id="assistant-quick-actions" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+          <button onclick="sendAssistantQuick('نصيحة للصلاة')" class="assistant-quick-btn">🕌 نصيحة للصلاة</button>
+          <button onclick="sendAssistantQuick('حافز للصيام')" class="assistant-quick-btn">🌙 حافز للصيام</button>
+          <button onclick="sendAssistantQuick('دعاء مเฉพาะ')" class="assistant-quick-btn">🤲 دعاء مخصوص</button>
+          <button onclick="sendAssistantQuick('تحليل أدائي')" class="assistant-quick-btn">📊 تحليل أدائي</button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="assistant-input" placeholder="اكتب سؤالك هنا..." style="flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--prayer-bg); color: var(--text-primary); font-family: 'Tajawal'; font-size: 0.95rem;" onkeypress="if(event.key==='Enter')sendAssistantMessage()">
+          <button onclick="sendAssistantMessage()" class="btn-primary" style="padding: 10px 18px;"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال الأهداف الشهرية -->
+  <div id="goals-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-bullseye" style="color: #10b981;"></i> أهدافي الشهرية</h3>
+        <button class="close-btn" onclick="closeGoalsModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="goals-list"></div>
+        <button onclick="addNewGoal()" class="btn-primary" style="width: 100%; margin-top: 10px; padding: 10px; background: #10b981;"><i class="fa-solid fa-plus"></i> إضافة هدف جديد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال إضافة هدف -->
+  <div id="add-goal-modal" class="modal-overlay hidden" style="z-index: 10000;">
+    <div class="liquid-modal" style="max-width: 400px; width: 90%;">
+      <div class="modal-header">
+        <h3>إضافة هدف جديد</h3>
+        <button class="close-btn" onclick="closeAddGoalModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>اسم الهدف</label>
+          <input type="text" id="goal-name-input" placeholder="مثال: صلوات الفجر" style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--glass-border); background:var(--prayer-bg); color:var(--text-primary); font-family:'Tajawal';">
+        </div>
+        <div class="form-group">
+          <label>نوع التتبع</label>
+          <select id="goal-type-input" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--glass-border); background:var(--prayer-bg); color:var(--text-primary); font-family:'Tajawal';">
+            <option value="days">عدد الأيام</option>
+            <option value="count">عدد المرات</option>
+            <option value="percentage">نسبة مئوية</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>الهدف (الرقم المستهدف)</label>
+          <input type="number" id="goal-target-input" placeholder="مثال: 15" min="1" style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--glass-border); background:var(--prayer-bg); color:var(--text-primary); font-family:'Tajawal';">
+        </div>
+        <button onclick="saveNewGoal()" class="btn-primary" style="width: 100%; padding: 10px; background: #10b981;">حفظ الهدف</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال إحياء السُّنة -->
+  <div id="sunnah-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sun" style="color: #eab308;"></i> إحياء السُّنة النبوية</h3>
+        <button class="close-btn" onclick="closeSunnahModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="sunnah-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال الصلاة على النبي ﷺ -->
+  <div id="salawat-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 420px; width: 92%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-star-and-crescent" style="color: #a855f7;"></i> الصلاة على النبي ﷺ</h3>
+        <button class="close-btn" onclick="closeSalawatModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 10px;">"إنَّ اللهَ وملائكته يُصلُّون على النبي، يا أيها الذين آمنوا صلُّوا عليه وسلِّموا تسليمًا"</div>
+        <div id="salawat-counter-circle" onclick="incrementSalawat()" style="width: 180px; height: 180px; border-radius: 50%; border: 4px solid #a855f7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 15px; cursor: pointer; user-select: none; background: rgba(168, 85, 247, 0.05); transition: transform 0.1s;">
+          <span id="salawat-count" style="font-size: 3.5rem; font-weight: 800; color: #a855f7; line-height: 1;">0</span>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">اضغط لل counted</span>
+        </div>
+        <div id="salawat-milestones" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px;"></div>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="resetSalawat()" class="btn-primary" style="flex: 1; background: #ef4444; padding: 10px; font-size: 0.9rem;"><i class="fa-solid fa-rotate-left"></i> إعادة</button>
+          <button onclick="saveSalawatSession()" class="btn-primary" style="flex: 1; background: #a855f7; padding: 10px; font-size: 0.9rem;"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+        </div>
+        <div id="salawat-stats" style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 10px; font-size: 0.85rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال حصن المسلم -->
+  <div id="hisn-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-shield-halved" style="color: #14b8a6;"></i> حصن المسلم</h3>
+        <button class="close-btn" onclick="closeHisnModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; gap: 15px; flex-direction: column;">
+        <div id="hisn-categories" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 10px;"></div>
+        <div id="hisn-duas"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال نظام العضويات -->
+  <div id="membership-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 520px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-crown" style="color: #d97706;"></i> رتبك وإنجازاتك</h3>
+        <button class="close-btn" onclick="closeMembershipModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="membership-current" style="text-align: center; padding: 15px; background: rgba(0,0,0,0.03); border-radius: 14px; margin-bottom: 15px;"></div>
+        <div id="membership-ranks-list"></div>
+        <div id="membership-unlocked" style="margin-top: 15px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- شريط الإلغاء (Undo) -->
+  <div id="undo-bar" class="undo-bar hidden">
+    <span id="undo-message">تم التنفيذ</span>
+    <button id="undo-btn" onclick="undoLastAction()">تراجع</button>
+  </div>
+
+  <!-- مودال تفاصيل النقاط -->
+  <div id="points-detail-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-list-check" style="color: #f59e0b;"></i> تفاصيل إنجاز اليوم</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="filter-completed-btn" onclick="toggleFilterCompleted()" class="filter-completed-btn" title="إظهار المنجز فقط"><i class="fa-solid fa-filter"></i> المنجز فقط</button>
+          <button class="close-btn" onclick="closePointsDetailModal()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="points-detail-summary" style="text-align:center; padding:12px; background:rgba(0,0,0,0.03); border-radius:12px; margin-bottom:15px;"></div>
+        <div id="points-detail-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال الإحصائيات المقارنة -->
+  <div id="stats-modal" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="liquid-modal" style="max-width: 500px; width: 95%;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-chart-simple" style="color: #f472b6;"></i> إحصائياتي المقارنة</h3>
+        <button class="close-btn" onclick="closeStatsModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="stats-period-toggle" style="display:flex;gap:8px;margin-bottom:15px;">
+          <button class="stats-period-btn active" onclick="switchStatsPeriod('week')" id="stats-week-btn">هذا الأسبوع</button>
+          <button class="stats-period-btn" onclick="switchStatsPeriod('month')" id="stats-month-btn">هذا الشهر</button>
+        </div>
+        <div id="stats-summary-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;"></div>
+        <div id="stats-comparison-bars"></div>
+        <div id="stats-best-day" style="margin-top:15px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script>
+        // --- 1. إعدادات Firebase ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyD8ltXQrl8XhRbjLlOfr5QiTGx_IQMan3U",
+        authDomain: "mohasba-app.firebaseapp.com",
+        projectId: "mohasba-app",
+        storageBucket: "mohasba-app.firebasestorage.app",
+        messagingSenderId: "24957282420",
+        appId: "1:24957282420:web:982d83e0e0b1f7d6da8921"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const provider = new firebase.auth.GoogleAuthProvider();
+  </script>
+  <!-- Capacitor: هذين السكريبتين بيبقوا موجودين تلقائيًا بعد ما تعمل npx cap sync -
+       لو الموقع اتفتح في متصفح عادي (مش جوه التطبيق) هيفشلوا في التحميل بهدوء ومش هيأثروا على حاجة -->
+  <script src="capacitor.js" defer></script>
+  <script src="native-notifications.js" defer></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
+<script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+</body>
+
+
+</html>
