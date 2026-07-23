@@ -7454,9 +7454,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initNightMode();
 
     setInterval(() => {
+        const clockEl = document.getElementById('npb-clock');
+        if (clockEl) {
+            const now = getZeftaNow();
+            clockEl.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+        }
         const ptd = window._prayerTimesData;
         if (!ptd) return;
-        const now = getZeftaNow();
+        const now2 = getZeftaNow();
         const times = {
             fajr: parseTime(ptd.Fajr),
             dhuhr: parseTime(ptd.Dhuhr),
@@ -7473,16 +7478,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let nextPr = null, nextPrDate = null;
         for (const [key, date] of Object.entries(times)) {
             let d = new Date(date);
-            if (key === 'fajr' && now.getHours() > 12) d = new Date(d.getTime() + 86400000);
-            if (d > now) { nextPr = key; nextPrDate = d; break; }
+            if (key === 'fajr' && now2.getHours() > 12) d = new Date(d.getTime() + 86400000);
+            if (d > now2) { nextPr = key; nextPrDate = d; break; }
         }
         if (!nextPr) { nextPr = 'fajr'; nextPrDate = new Date(times.fajr.getTime() + 86400000); }
-        const diff = nextPrDate - now;
+        const diff = nextPrDate - now2;
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
         nameEl.textContent = P_NAMES[nextPr];
-        countdownEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        countdownEl.textContent = `متبقي: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         const tp = String(nextPrDate.getHours()).padStart(2,'0') + ':' + String(nextPrDate.getMinutes()).padStart(2,'0');
         if (timeEl) timeEl.textContent = `وقت الصلاة: ${tp}`;
         banner.classList.remove('prayer-passed', 'prayer-soon');
